@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "MultiProdigy"
-version = "0.1.0"
+version = "0.2.0"
 description = "Modular, Pydantic-powered multi-agent AI framework"
 authors = ["Abhay-Cerberus"]
 license = "GPL-3.0-or-later"
