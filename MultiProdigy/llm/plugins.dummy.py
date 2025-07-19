@@ -1,7 +1,7 @@
-from base import LLMClient
+from MultiProdigy.llm.base import BaseLLMClient
 from typing import List
 
-class DummyLLM(LLMClient):
+class DummyLLM(BaseLLMClient):
     def generate(self, prompt: str, **kwargs) -> str:
         return f"Echo: {prompt}"
 
