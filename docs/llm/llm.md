@@ -1,10 +1,8 @@
-🧠 MultiProdigy — Local LLM Client Framework (Offline + Simulated)
+# 🧠 MultiProdigy — Local LLM Client Framework (Offline + Simulated)
 A modular Python framework to run and test multiple LLM clients — like OpenAI, Gemini, HuggingFace (Offline mode), and Ollama — all in one place. Ideal for environments with no API keys or internet required (offline-friendly). Supports full simulation and real LLM output using local models.
 
-📁 Folder Structure
-bash
-Copy
-Edit
+## 📁 Folder Structure
+```bash
 MultiProdigy/
 ├── demo/
 │   └── llm_demo.py               # Main demo runner for all LLM clients
@@ -13,42 +11,51 @@ MultiProdigy/
 │   └── huggingface_client.py     # HuggingFace client using offline local models
 ├── requirements.txt              # Required libraries (transformers, torch, etc.)
 └── README.md                     # You're here!
-💡 How It Works
-🔷 OpenAI & Gemini (Simulated)
+```
+---------------
+--------------
+
+## 💡 How It Works
+
+- 🔷 OpenAI & Gemini (Simulated)
+
 These are simulated LLMs without internet or API keys.
 
 Return fake/test responses like: "Simulated response from OpenAI for: <your input>".
 
-🟡 HuggingFace (Offline)
+---------
+
+- 🟡 HuggingFace (Offline)
+
 Works without internet or token using transformers library.
 
 Loads models like gpt2, distilgpt2 locally.
 
 Uses pipeline("text-generation", model=model_name) to generate text.
 
-🟢 Ollama (Real Local LLM)
+-------------
+
+- 🟢 Ollama (Real Local LLM)
+
 Runs real Ollama models like tinyllama, mistral, llama3.
 
 Requires ollama installed and model pulled via CLI:
-
-bash
-Copy
-Edit
+```bash
 ollama pull tinyllama
+```
+
 🧪 Demo File Overview: demo/llm_demo.py
-python
-Copy
-Edit
+```python
 # llm_demo.py
 async def demo_openai():           # Simulated response
 async def demo_gemini():           # Simulated response
 async def demo_huggingface():      # Runs offline HuggingFace model (gpt2 etc.)
 async def demo_ollama():           # Runs real Ollama response using local model
+```
+
 Runs like this:
 
-sql
-Copy
-Edit
+```sql
 🌐 Running all LLM Clients Demo...
 
 🔷 OpenAI Response: Simulated response from OpenAI for: Hello from OpenAI
@@ -56,84 +63,81 @@ Edit
 🟡 HuggingFace (Offline) Response: <Actual generated text from local model>
 🟢 Ollama Response: <Real AI output from local Ollama model>
 ✅ All clients ran successfully!
-🧠 LLM Clients
-llm/clients.py
-Defines each LLM client interface:
+```
 
-OpenAIClient – Simulated, returns test strings
+--------------------
 
-GeminiClient – Simulated, returns test strings
+- 🧠 LLM Clients
 
-OllamaClient – Uses subprocess to call ollama run command
 
-llm/huggingface_client.py
-Offline LLM using Hugging Face transformers.
-Loads and runs text-generation locally like this:
+  - llm/clients.py
 
-python
-Copy
-Edit
-from transformers import pipeline
-self.generator = pipeline("text-generation", model="gpt2")
-⚙️ Requirements
-Create a requirements.txt like this:
+      Defines each LLM client interface:
 
-makefile
-Copy
-Edit
-transformers==4.41.1
-torch
-Then install:
+      OpenAIClient – Simulated, returns test strings
 
-bash
-Copy
-Edit
-pip install -r requirements.txt
-Also install Ollama if needed:
+      GeminiClient – Simulated, returns test strings
 
-bash
-Copy
-Edit
-# For Windows or Mac
-https://ollama.com/download
+      OllamaClient – Uses subprocess to call ollama run command
 
-# Pull a model
-ollama pull tinyllama
+  - llm/huggingface_client.py
+
+    Offline LLM using Hugging Face transformers.
+
+    Loads and runs text-generation locally like this:
+
+    ```python
+    from transformers import pipeline
+    self.generator = pipeline("text-generation", model="gpt2")
+    ```
+
+--------------
+-----------
+
 ▶️ How to Run
 ✅ Step-by-step
 Clone or set up the folder
 
 Install dependencies:
 
-bash
-Copy
-Edit
+```bash
 pip install -r requirements.txt
+```
+
+install Ollama if you havent:
+```bash
+# For Windows or Mac
+https://ollama.com/download
+```
+
 Make sure Ollama is installed and a model is pulled:
 
-bash
-Copy
-Edit
+```bash
 ollama pull tinyllama
+```
+
 Run the demo:
 
-bash
-Copy
-Edit
+```bash
 PYTHONPATH=. python demo/llm_demo.py
+```
 You will see:
 
-yaml
-Copy
-Edit
+```yaml
 🔷 OpenAI Response: ...
 🟣 Gemini Response: ...
 🟡 HuggingFace (Offline) Response: ...
 🟢 Ollama Response: ...
-✅ What's Offline and What's Not?
-Client	Offline?	Notes
-OpenAIClient	✅ Yes	Simulated (no real API call)
-GeminiClient	✅ Yes	Simulated (no real API call)
-HuggingFace	✅ Yes	Requires downloaded models only
-Ollama	✅ Yes	Runs real local models via CLI
+```
 
+✅ What's Offline and What's Not?
+
+Client	Offline?	Notes
+
+OpenAIClient	✅ Yes	Simulated (no real API call)
+
+GeminiClient	✅ Yes	Simulated (no real API call)
+
+HuggingFace	  ✅ Yes	Requires downloaded models only
+
+Ollama	      ✅ Yes	Runs real local models via CLI
