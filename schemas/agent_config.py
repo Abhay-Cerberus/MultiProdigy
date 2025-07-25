@@ -1,4 +1,12 @@
-from pydantic import BaseSettings, Field
+from pydantic import BaseModel
+
+class AgentConfig(BaseModel):
+    name: str
+    max_tasks: int = 5
+    retry_delay: int = 2
+
+
+'''from pydantic import BaseSettings, Field
 from typing import Optional
 
 class OpenAISettings(BaseSettings):
@@ -19,4 +27,4 @@ class HFSettings(BaseSettings):
 class LLMSettings(BaseSettings):
     openai: OpenAISettings = OpenAISettings()
     gemini: GeminiSettings = GeminiSettings()
-    huggingface: HFSettings = HFSettings()
+    huggingface: HFSettings = HFSettings()'''

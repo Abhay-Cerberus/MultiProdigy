@@ -7,4 +7,8 @@ class TaskManagerAgent(BaseAgent):
         self.config = config
 
     def on_message(self, message):
-        raise NotImplementedError
+        print(f"[{self.name}] Received message: {message}")
+
+    def run(self):
+        print(f"[{self.name}] Agent running with config: {self.config}")
+
