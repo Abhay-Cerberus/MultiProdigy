@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>LangGraph Visualizer</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    .node circle { fill: steelblue; cursor: pointer; }
+    .node text { font: 12px sans-serif; pointer-events: none; }
+    .link { stroke: #999; stroke-opacity: 0.6; }
+    #node-details { position: fixed; right: 10px; top: 10px; background: white; padding: 10px; border: 1px solid #ccc; width: 300px; }
+  </style>
+</head>
+<body>
+  <svg width="960" height="600"></svg>
+  <div id="node-details">Click a node to see details</div>
+
+  <script>
+    const svg = d3.select("svg"),
+          width = +svg.attr("width"),
+          height = +svg.attr("height");
+
+    const simulation = d3.forceSimulation()
+      .force("link", d3.forceLink().id(d => d.id).distance(120))
+      .force("charge", d3.forceManyBody().strength(-400))
+      .force("center", d3.forceCenter(width / 2, height / 2));
+
+    const socket = new WebSocket("ws://localhost:8765");
+
+    socket.onmessage = (event) => {
+      const graph = JSON.parse(event.data);
+      drawGraph(graph);
+    };
+
+    function drawGraph(graph) {
+      svg.selectAll("*").remove();
+
+      const link = svg.append("g")
+          .selectAll("line")
+          .data(graph.links)
+          .join("line")
+          .attr("class", "link");
+
+      const node = svg.append("g")
+          .selectAll("g")
+          .data(graph.nodes)
+          .join("g")
+          .attr("class", "node")
+          .call(drag(simulation));
+
+      node.append("circle")
+          .attr("r", 20)
+          .on("click", (_, d) => {
+            document.getElementById("node-details").innerText =
+              JSON.stringify(d.data, null, 2);
+          });
+
+      node.append("text")
+          .text(d => d.label)
+          .attr("dy", 4)
+          .attr("x", 25);
+
+      simulation
+          .nodes(graph.nodes)
+          .on("tick", () => {
+            link
+              .attr("x1", d => d.source.x)
+              .attr("y1", d => d.source.y)
+              .attr("x2", d => d.target.x)
+              .attr("y2", d => d.target.y);
+            node
+              .attr("transform", d => `translate(${d.x},${d.y})`);
+          });
+
+      simulation.force("link").links(graph.links);
+    }
+
+    function drag(simulation) {
+      return d3.drag()
+        .on("start", (event, d) => {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        })
+        .on("drag", (event, d) => {
+          d.fx = event.x;
+          d.fy = event.y;
+        })
+        .on("end", (event, d) => {
+          if (!event.active) simulation.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+        });
+    }
+  </script>
+</body>
+</html>
