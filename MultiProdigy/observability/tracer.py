@@ -4,7 +4,6 @@ import uuid
 from datetime import datetime
 from typing import Dict, Any, Optional
 from pathlib import Path
-import psutil  # ✅ Added for system metrics
 
 class AgentTracer:
     """Structured logging and tracing for MultiProdigy agents"""
@@ -61,32 +60,23 @@ class AgentTracer:
         
         self._write_log(event_data)
         return event_data["message_id"]
-
-    def log_system_metrics(self):
-        """Log current CPU and memory usage"""
-        mem = psutil.virtual_memory()
-        cpu = psutil.cpu_percent(interval=0.1)
-
-        metrics_data = {
-            "event_type": "system_metrics",
-            "timestamp": datetime.utcnow().isoformat(),
-            "cpu_percent": cpu,
-            "memory_percent": mem.percent,
-            "available_memory_mb": round(mem.available / (1024 * 1024), 2),
-        }
-
-        self._write_log(metrics_data)
     
     def _write_log(self, data: Dict[str, Any]):
         """Write log entry to file"""
-        with open(self.log_file, "a") as f:
-            f.write(json.dumps(data) + "\n")
+        try:
+            with open(self.log_file, "a", encoding='utf-8') as f:
+                f.write(json.dumps(data) + "\n")
+        except Exception as e:
+            print(f"Warning: Could not write to log file {self.log_file}: {e}")
     
     def _calculate_duration(self, start_time: str) -> float:
         """Calculate duration in milliseconds"""
-        start = datetime.fromisoformat(start_time)
-        end = datetime.utcnow()
-        return (end - start).total_seconds() * 1000
+        try:
+            start = datetime.fromisoformat(start_time)
+            end = datetime.utcnow()
+            return (end - start).total_seconds() * 1000
+        except Exception:
+            return 0.0
 
 # Global tracer instance
 tracer = AgentTracer()

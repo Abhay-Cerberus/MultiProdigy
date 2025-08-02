@@ -11,3 +11,6 @@ __pycache__/
 # virtual environments
 env/
 venv/
+
+# log files
+agent_traces.jsonl

@@ -34,8 +34,6 @@ class BaseAgent(ABC):
             }
         )
 
-        tracer.log_system_metrics()  # ✅ NEW: log CPU and memory stats before processing
-
         try:
             result = self.on_message(message)
             tracer.end_trace(trace_id, result={"status": "processed"})

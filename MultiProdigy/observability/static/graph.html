@@ -1,97 +1,389 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>LangGraph Visualizer</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <style>
-    .node circle { fill: steelblue; cursor: pointer; }
-    .node text { font: 12px sans-serif; pointer-events: none; }
-    .link { stroke: #999; stroke-opacity: 0.6; }
-    #node-details { position: fixed; right: 10px; top: 10px; background: white; padding: 10px; border: 1px solid #ccc; width: 300px; }
-  </style>
+    <title>MultiProdigy Agent Network</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .nav-links a {
+            margin-right: 15px;
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        
+        .nav-links a:hover {
+            background: #0056b3;
+        }
+        
+        #graph-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            height: 600px;
+            position: relative;
+        }
+        
+        .node {
+            cursor: pointer;
+            stroke: #333;
+            stroke-width: 2px;
+        }
+        
+        .node.active { fill: #28a745; }
+        .node.processing { fill: #ffc107; }
+        .node.error { fill: #dc3545; }
+        .node.idle { fill: #6c757d; }
+        
+        .link {
+            stroke: #999;
+            stroke-width: 2px;
+            marker-end: url(#arrowhead);
+        }
+        
+        .node-label {
+            font-size: 12px;
+            font-weight: bold;
+            text-anchor: middle;
+            pointer-events: none;
+            fill: white;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+        }
+        
+        .controls button {
+            margin-right: 10px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .controls button:hover {
+            background: #0056b3;
+        }
+        
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
-  <svg width="960" height="600"></svg>
-  <div id="node-details">Click a node to see details</div>
+    <div class="header">
+        <h1>🕸️ MultiProdigy Agent Network</h1>
+        <div class="nav-links">
+            <a href="/">Dashboard</a>
+            <a href="/static/graph.html">Network Graph</a>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button onclick="refreshGraph()">🔄 Refresh</button>
+        <button onclick="resetZoom()">🔍 Reset Zoom</button>
+        <button onclick="toggleAnimation()">⏯️ Toggle Animation</button>
+    </div>
+    
+    <div id="graph-container">
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #28a745;"></div>
+                <span>Active</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffc107;"></div>
+                <span>Processing</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #dc3545;"></div>
+                <span>Error</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #6c757d;"></div>
+                <span>Idle</span>
+            </div>
+        </div>
+        
+        <svg id="graph-svg"></svg>
+        <div class="tooltip" id="tooltip"></div>
+        <div id="status-message" class="status-message">Loading agent network...</div>
+    </div>
 
-  <script>
-    const svg = d3.select("svg"),
-          width = +svg.attr("width"),
-          height = +svg.attr("height");
-
-    const simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().id(d => d.id).distance(120))
-      .force("charge", d3.forceManyBody().strength(-400))
-      .force("center", d3.forceCenter(width / 2, height / 2));
-
-    const socket = new WebSocket("ws://localhost:8765");
-
-    socket.onmessage = (event) => {
-      const graph = JSON.parse(event.data);
-      drawGraph(graph);
-    };
-
-    function drawGraph(graph) {
-      svg.selectAll("*").remove();
-
-      const link = svg.append("g")
-          .selectAll("line")
-          .data(graph.links)
-          .join("line")
-          .attr("class", "link");
-
-      const node = svg.append("g")
-          .selectAll("g")
-          .data(graph.nodes)
-          .join("g")
-          .attr("class", "node")
-          .call(drag(simulation));
-
-      node.append("circle")
-          .attr("r", 20)
-          .on("click", (_, d) => {
-            document.getElementById("node-details").innerText =
-              JSON.stringify(d.data, null, 2);
-          });
-
-      node.append("text")
-          .text(d => d.label)
-          .attr("dy", 4)
-          .attr("x", 25);
-
-      simulation
-          .nodes(graph.nodes)
-          .on("tick", () => {
-            link
-              .attr("x1", d => d.source.x)
-              .attr("y1", d => d.source.y)
-              .attr("x2", d => d.target.x)
-              .attr("y2", d => d.target.y);
-            node
-              .attr("transform", d => `translate(${d.x},${d.y})`);
-          });
-
-      simulation.force("link").links(graph.links);
-    }
-
-    function drag(simulation) {
-      return d3.drag()
-        .on("start", (event, d) => {
-          if (!event.active) simulation.alphaTarget(0.3).restart();
-          d.fx = d.x;
-          d.fy = d.y;
-        })
-        .on("drag", (event, d) => {
-          d.fx = event.x;
-          d.fy = event.y;
-        })
-        .on("end", (event, d) => {
-          if (!event.active) simulation.alphaTarget(0);
-          d.fx = null;
-          d.fy = null;
-        });
-    }
-  </script>
+    <script>
+        // Graph configuration
+        const width = 800;
+        const height = 560;
+        let animationEnabled = true;
+        
+        // Create SVG
+        const svg = d3.select("#graph-svg")
+            .attr("width", width)
+            .attr("height", height);
+        
+        // Add arrow marker for edges
+        svg.append("defs").append("marker")
+            .attr("id", "arrowhead")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 20)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("fill", "#999");
+        
+        // Create zoom behavior
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on("zoom", (event) => {
+                container.attr("transform", event.transform);
+            });
+        
+        svg.call(zoom);
+        
+        // Create container for graph elements
+        const container = svg.append("g");
+        
+        // Tooltip
+        const tooltip = d3.select("#tooltip");
+        const statusMessage = d3.select("#status-message");
+        
+        // Force simulation
+        const simulation = d3.forceSimulation()
+            .force("link", d3.forceLink().id(d => d.id).distance(100))
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+        
+        // Graph data
+        let graphData = { nodes: [], edges: [] };
+        
+        function loadGraphData() {
+            fetch('/api/graph')
+                .then(response => response.json())
+                .then(data => {
+                    graphData = data;
+                    updateGraph();
+                })
+                .catch(error => {
+                    console.error('Error loading graph data:', error);
+                    statusMessage.text('Error loading graph data. Make sure agents are running.');
+                });
+        }
+        
+        function updateGraph() {
+            // Hide status message if we have data
+            if (graphData.nodes && graphData.nodes.length > 0) {
+                statusMessage.style("display", "none");
+            } else {
+                statusMessage.style("display", "block")
+                    .text("No agents active yet. Start sending messages between agents to see the network.");
+                return;
+            }
+            
+            // Update links
+            const link = container.selectAll(".link")
+                .data(graphData.edges || [], d => d.id);
+            
+            link.exit().remove();
+            
+            const linkEnter = link.enter().append("line")
+                .attr("class", "link")
+                .on("mouseover", showEdgeTooltip)
+                .on("mouseout", hideTooltip);
+            
+            const linkUpdate = linkEnter.merge(link);
+            
+            // Update nodes
+            const node = container.selectAll(".node-group")
+                .data(graphData.nodes || [], d => d.id);
+            
+            node.exit().remove();
+            
+            const nodeEnter = node.enter().append("g")
+                .attr("class", "node-group");
+            
+            nodeEnter.append("circle")
+                .attr("class", "node")
+                .attr("r", d => d.size || 20)
+                .on("mouseover", showNodeTooltip)
+                .on("mouseout", hideTooltip)
+                .on("click", showNodeDetails)
+                .call(d3.drag()
+                    .on("start", dragStarted)
+                    .on("drag", dragged)
+                    .on("end", dragEnded));
+            
+            nodeEnter.append("text")
+                .attr("class", "node-label")
+                .attr("dy", 4)
+                .text(d => d.label || d.id);
+            
+            const nodeUpdate = nodeEnter.merge(node);
+            
+            // Update node colors based on status
+            nodeUpdate.select("circle")
+                .attr("class", d => `node ${d.status || 'idle'}`);
+            
+            // Update simulation
+            simulation.nodes(graphData.nodes || []);
+            simulation.force("link").links(graphData.edges || []);
+            
+            if (animationEnabled) {
+                simulation.alpha(1).restart();
+            }
+            
+            // Update positions
+            simulation.on("tick", () => {
+                linkUpdate
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+                
+                nodeUpdate
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+        }
+        
+        function showNodeTooltip(event, d) {
+            tooltip
+                .style("opacity", 1)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px")
+                .html(`
+                    <strong>${d.label || d.id}</strong><br>
+                    Status: ${d.status || 'unknown'}<br>
+                    Messages: ${d.message_count || 0}<br>
+                    Errors: ${d.error_count || 0}<br>
+                    Avg Duration: ${d.avg_duration_ms || 0}ms
+                `);
+        }
+        
+        function showEdgeTooltip(event, d) {
+            tooltip
+                .style("opacity", 1)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px")
+                .html(`
+                    <strong>${d.source.id} → ${d.target.id}</strong><br>
+                    Time: ${d.timestamp ? new Date(d.timestamp).toLocaleTimeString() : 'Unknown'}<br>
+                    Content: ${d.content_preview || 'No preview'}
+                `);
+        }
+        
+        function hideTooltip() {
+            tooltip.style("opacity", 0);
+        }
+        
+        function showNodeDetails(event, d) {
+            alert(`Agent: ${d.label || d.id}\\nStatus: ${d.status || 'unknown'}\\nMessages: ${d.message_count || 0}\\nErrors: ${d.error_count || 0}`);
+        }
+        
+        // Drag functions
+        function dragStarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+        
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+        
+        function dragEnded(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+        
+        // Control functions
+        function refreshGraph() {
+            loadGraphData();
+        }
+        
+        function resetZoom() {
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity
+            );
+        }
+        
+        function toggleAnimation() {
+            animationEnabled = !animationEnabled;
+            if (animationEnabled) {
+                simulation.alpha(1).restart();
+            } else {
+                simulation.stop();
+            }
+        }
+        
+        // Initialize
+        loadGraphData();
+        
+        // Auto-refresh every 5 seconds
+        setInterval(loadGraphData, 5000);
+    </script>
 </body>
 </html>
