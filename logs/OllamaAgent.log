@@ -1,0 +1,46 @@
+[INFO] 2025-08-15 22:01:38,789 - OllamaAgent - Processing task | message_id: 5 | status: processing | extra: {"model": "llama2", "temperature": 0.7}
+[INFO] 2025-08-15 22:01:39,277 - OllamaAgent - Task completed | message_id: 5 | status: completed | extra: {"duration": "2.3s", "tokens_processed": 245}
+[DEBUG] 2025-08-15 22:02:00,803 - OllamaAgent - Starting model inference | message_id: 9
+[DEBUG] 2025-08-15 22:02:00,803 - OllamaAgent - Processing step: Loading model weights | message_id: 9
+[DEBUG] 2025-08-15 22:02:01,005 - OllamaAgent - Processing step: Tokenizing input | message_id: 9
+[DEBUG] 2025-08-15 22:02:01,221 - OllamaAgent - Processing step: Running inference | message_id: 9
+[DEBUG] 2025-08-15 22:02:01,427 - OllamaAgent - Processing step: Post-processing results | message_id: 9
+[INFO] 2025-08-15 22:02:01,634 - OllamaAgent - Inference completed | message_id: 9 | extra: {"model": "llama2", "inference_time": "1.8s", "confidence": 0.89}
+[DEBUG] 2025-08-15 22:02:16,425 - OllamaAgent - Starting model inference | message_id: 12
+[DEBUG] 2025-08-15 22:02:16,425 - OllamaAgent - Processing step: Loading model weights | message_id: 12
+[DEBUG] 2025-08-15 22:02:16,627 - OllamaAgent - Processing step: Tokenizing input | message_id: 12
+[DEBUG] 2025-08-15 22:02:16,831 - OllamaAgent - Processing step: Running inference | message_id: 12
+[DEBUG] 2025-08-15 22:02:17,039 - OllamaAgent - Processing step: Post-processing results | message_id: 12
+[INFO] 2025-08-15 22:02:17,245 - OllamaAgent - Inference completed | message_id: 12 | extra: {"model": "llama2", "inference_time": "1.8s", "confidence": 0.89}
+[DEBUG] 2025-08-15 22:02:38,294 - OllamaAgent - Starting model inference | message_id: 17
+[DEBUG] 2025-08-15 22:02:38,295 - OllamaAgent - Processing step: Loading model weights | message_id: 17
+[DEBUG] 2025-08-15 22:02:38,506 - OllamaAgent - Processing step: Tokenizing input | message_id: 17
+[DEBUG] 2025-08-15 22:02:38,708 - OllamaAgent - Processing step: Running inference | message_id: 17
+[DEBUG] 2025-08-15 22:02:38,917 - OllamaAgent - Processing step: Post-processing results | message_id: 17
+[INFO] 2025-08-15 22:02:39,122 - OllamaAgent - Inference completed | message_id: 17 | extra: {"model": "llama2", "inference_time": "1.8s", "confidence": 0.89}
+[INFO] 2025-08-15 22:02:46,302 - OllamaAgent - Processing task | message_id: 18 | status: processing | extra: {"model": "llama2", "temperature": 0.7}
+[INFO] 2025-08-15 22:02:46,804 - OllamaAgent - Task completed | message_id: 18 | status: completed | extra: {"duration": "2.3s", "tokens_processed": 245}
+[DEBUG] 2025-08-15 22:02:57,833 - OllamaAgent - Starting model inference | message_id: 20
+[DEBUG] 2025-08-15 22:02:57,833 - OllamaAgent - Processing step: Loading model weights | message_id: 20
+[DEBUG] 2025-08-15 22:02:58,040 - OllamaAgent - Processing step: Tokenizing input | message_id: 20
+[DEBUG] 2025-08-15 22:02:58,253 - OllamaAgent - Processing step: Running inference | message_id: 20
+[DEBUG] 2025-08-15 22:02:58,463 - OllamaAgent - Processing step: Post-processing results | message_id: 20
+[INFO] 2025-08-15 22:02:58,671 - OllamaAgent - Inference completed | message_id: 20 | extra: {"model": "llama2", "inference_time": "1.8s", "confidence": 0.89}
+[INFO] 2025-08-15 22:04:45,373 - OllamaAgent - Processing task | message_id: 6 | status: processing | extra: {"model": "llama2", "temperature": 0.7}
+[INFO] 2025-08-15 22:04:45,880 - OllamaAgent - Task completed | message_id: 6 | status: completed | extra: {"duration": "2.3s", "tokens_processed": 245}
+[INFO] 2025-08-15 22:04:52,945 - OllamaAgent - Processing task | message_id: 7 | status: processing | extra: {"model": "llama2", "temperature": 0.7}
+[INFO] 2025-08-15 22:04:53,448 - OllamaAgent - Task completed | message_id: 7 | status: completed | extra: {"duration": "2.3s", "tokens_processed": 245}
+[INFO] 2025-08-15 22:05:26,436 - OllamaAgent - Processing task | message_id: 14 | status: processing | extra: {"model": "llama2", "temperature": 0.7}
+[INFO] 2025-08-15 22:05:26,943 - OllamaAgent - Task completed | message_id: 14 | status: completed | extra: {"duration": "2.3s", "tokens_processed": 245}
+[DEBUG] 2025-08-15 22:05:42,862 - OllamaAgent - Starting model inference | message_id: 17
+[DEBUG] 2025-08-15 22:05:42,863 - OllamaAgent - Processing step: Loading model weights | message_id: 17
+[DEBUG] 2025-08-15 22:05:43,077 - OllamaAgent - Processing step: Tokenizing input | message_id: 17
+[DEBUG] 2025-08-15 22:05:43,287 - OllamaAgent - Processing step: Running inference | message_id: 17
+[DEBUG] 2025-08-15 22:05:43,510 - OllamaAgent - Processing step: Post-processing results | message_id: 17
+[INFO] 2025-08-15 22:05:43,717 - OllamaAgent - Inference completed | message_id: 17 | extra: {"model": "llama2", "inference_time": "1.8s", "confidence": 0.89}
+[DEBUG] 2025-08-15 22:06:00,594 - OllamaAgent - Starting model inference | message_id: 20
+[DEBUG] 2025-08-15 22:06:00,594 - OllamaAgent - Processing step: Loading model weights | message_id: 20
+[DEBUG] 2025-08-15 22:06:00,802 - OllamaAgent - Processing step: Tokenizing input | message_id: 20
+[DEBUG] 2025-08-15 22:06:01,010 - OllamaAgent - Processing step: Running inference | message_id: 20
+[DEBUG] 2025-08-15 22:06:01,227 - OllamaAgent - Processing step: Post-processing results | message_id: 20
+[INFO] 2025-08-15 22:06:01,435 - OllamaAgent - Inference completed | message_id: 20 | extra: {"model": "llama2", "inference_time": "1.8s", "confidence": 0.89}

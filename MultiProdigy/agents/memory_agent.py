@@ -1,12 +1,18 @@
-from MultiProdigy.schemas.message import Message
-from MultiProdigy.agents.agent_base import BaseAgent
+from MultiProdigy.agents.agent_base import AgentBase  # Fix import
+from MultiProdigy.logging_custom.logger import setup_logger
 
-class MemoryAgent(BaseAgent):
-    def __init__(self, name: str, runtime):
-        super().__init__(name, runtime)
+logger = setup_logger("memory_agent")
+
+class MemoryAgent(AgentBase):  # Fix base class
+    def __init__(self, runtime=None):
+        super().__init__("MemoryAgent")  # Fix initialization
         self.memory = []
+        self.runtime = runtime
 
-    def handle_message(self, message: Message) -> Message:
-        print(f"[MemoryAgent] Received: {message.content}")
-        self.memory.append(message.content)
-        return message.copy_with_new_content("Memory stored.")
+    def handle_message(self, message):
+        """Required for MessageBus subscription"""
+        logger.info(f"Received: {message}")
+        content = message.get('content', str(message)) if isinstance(message, dict) else str(message)
+        self.memory.append(content)
+        logger.info(f"Memory stored. Total items: {len(self.memory)}")
+        return {"status": "stored", "memory_size": len(self.memory)}
