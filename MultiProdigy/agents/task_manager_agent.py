@@ -1,11 +1,6 @@
 from MultiProdigy.agents.agent_base import BaseAgent
 from MultiProdigy.schemas.agent_config import AgentConfig
 
-from MultiProdigy.logging_custom.logger import setup_logger
-
-logger = setup_logger("task_manager_agent")
-
-
 class TaskManagerAgent(BaseAgent):
     def __init__(self, config: AgentConfig, bus):
         super().__init__(name=config.name, bus=bus)
