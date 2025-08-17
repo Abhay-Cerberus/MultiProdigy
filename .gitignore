@@ -14,3 +14,7 @@ venv/
 
 # log files
 agent_traces.jsonl
+
+logs/
+*.log
+*.db

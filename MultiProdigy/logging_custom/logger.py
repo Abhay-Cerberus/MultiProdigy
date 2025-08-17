@@ -8,11 +8,12 @@ class EnhancedLogger:
     
     def __init__(self, agent_name, log_file=None, db_path=None):
         self.agent_name = agent_name
-        self.log_file = log_file or f"MultiProdigy/logs/{agent_name}.log"
-        self.db_path = db_path or "MultiProdigy/logs/multiprodigy_logs.db"
+        self.log_file = log_file or f"logs/agents/{agent_name}.log"
+        self.db_path = db_path or "logs/database/multiprodigy_logs.db"
         
         # Create logs directory if it doesn't exist
-        os.makedirs("MultiProdigy/logs", exist_ok=True)
+        os.makedirs("logs/agents", exist_ok=True)
+        os.makedirs("logs/system", exist_ok=True)
         
         # Set up Python logger
         self.logger = logging.getLogger(agent_name)
