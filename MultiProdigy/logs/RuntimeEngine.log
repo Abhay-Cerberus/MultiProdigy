@@ -1,0 +1,54 @@
+[INFO] 2025-08-15 15:19:11 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-15 15:19:11 - RuntimeEngine - OllamaAgent loaded successfully.
+[ERROR] 2025-08-15 15:19:11 - RuntimeEngine - Error loading agents: EchoAgent.__init__() got an unexpected keyword argument 'message_bus'
+[INFO] 2025-08-15 15:34:17 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-15 15:34:17 - RuntimeEngine - OllamaAgent loaded successfully.
+[ERROR] 2025-08-15 15:34:17 - RuntimeEngine - Error loading agents: BaseAgent.__init__() got an unexpected keyword argument 'message_bus'
+[INFO] 2025-08-15 15:37:39 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-15 15:37:39 - RuntimeEngine - OllamaAgent loaded successfully.
+[ERROR] 2025-08-15 15:37:39 - RuntimeEngine - Error loading agents: EnhancedLogger.info() takes 2 positional arguments but 3 were given
+[INFO] 2025-08-15 15:44:21 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-15 15:44:21 - RuntimeEngine - OllamaAgent loaded successfully.
+[INFO] 2025-08-15 15:44:21 - RuntimeEngine - EchoAgent loaded successfully.
+[ERROR] 2025-08-15 15:44:21 - RuntimeEngine - Error loading agents: 'EchoAgent' object has no attribute 'handle_message'
+[INFO] 2025-08-15 15:45:42 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-15 15:45:42 - RuntimeEngine - OllamaAgent loaded successfully.
+[INFO] 2025-08-15 15:45:42 - RuntimeEngine - EchoAgent loaded successfully.
+[ERROR] 2025-08-15 15:45:42 - RuntimeEngine - Error loading agents: 'EchoAgent' object has no attribute 'handle_message'
+[INFO] 2025-08-15 15:49:50 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-15 15:49:50 - RuntimeEngine - OllamaAgent loaded successfully.
+[ERROR] 2025-08-15 15:49:50 - RuntimeEngine - Error loading agents: EchoAgent.__init__() got an unexpected keyword argument 'message_bus'
+[INFO] 2025-08-15 15:51:26 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-15 15:51:26 - RuntimeEngine - OllamaAgent loaded successfully.
+[INFO] 2025-08-15 15:51:26 - RuntimeEngine - EchoAgent loaded successfully.
+[INFO] 2025-08-15 15:51:26 - RuntimeEngine - Loaded agents: ['ollama_agent', 'echo_agent']
+[INFO] 2025-08-15 22:02:12 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-15 22:02:12 - RuntimeEngine - OllamaAgent loaded successfully.
+[INFO] 2025-08-15 22:02:12 - RuntimeEngine - EchoAgent loaded successfully.
+[INFO] 2025-08-15 22:02:12 - RuntimeEngine - Loaded agents: ['ollama_agent', 'echo_agent']
+[INFO] 2025-08-15 22:11:53 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-15 22:11:53 - RuntimeEngine - OllamaAgent loaded successfully.
+[INFO] 2025-08-15 22:11:53 - RuntimeEngine - EchoAgent loaded successfully.
+[INFO] 2025-08-15 22:11:53 - RuntimeEngine - Loaded agents: ['ollama_agent', 'echo_agent']
+[INFO] 2025-08-15 23:10:24 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-15 23:10:24 - RuntimeEngine - OllamaAgent loaded successfully.
+[INFO] 2025-08-15 23:10:24 - RuntimeEngine - EchoAgent loaded successfully.
+[INFO] 2025-08-15 23:10:24 - RuntimeEngine - Loaded agents: ['ollama_agent', 'echo_agent']
+[INFO] 2025-08-15 23:29:12 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-15 23:29:12 - RuntimeEngine - OllamaAgent loaded successfully.
+[INFO] 2025-08-15 23:29:12 - RuntimeEngine - EchoAgent loaded successfully.
+[INFO] 2025-08-15 23:29:12 - RuntimeEngine - Loaded agents: ['ollama_agent', 'echo_agent']
+[INFO] 2025-08-17 09:26:43 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-17 09:26:43 - RuntimeEngine - OllamaAgent loaded successfully.
+[INFO] 2025-08-17 09:26:43 - RuntimeEngine - EchoAgent loaded successfully.
+[INFO] 2025-08-17 09:26:43 - RuntimeEngine - Loaded agents: ['ollama_agent', 'echo_agent']
+[DEBUG] 2025-08-17 09:26:43 - RuntimeEngine - Sending message to echo_agent: {'content': 'Hello from main system!'}
+[DEBUG] 2025-08-17 09:26:43 - RuntimeEngine - Sending message to ollama_agent: {'content': 'What is AI?'}
+[INFO] 2025-08-17 09:39:04 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-17 09:39:04 - RuntimeEngine - OllamaAgent loaded successfully.
+[INFO] 2025-08-17 09:39:04 - RuntimeEngine - EchoAgent loaded successfully.
+[INFO] 2025-08-17 09:39:04 - RuntimeEngine - Loaded agents: ['ollama_agent', 'echo_agent']
+[INFO] 2025-08-17 17:45:33 - RuntimeEngine - Initializing Runtime Engine...
+[INFO] 2025-08-17 17:45:33 - RuntimeEngine - OllamaAgent loaded successfully.
+[INFO] 2025-08-17 17:45:33 - RuntimeEngine - EchoAgent loaded successfully.
+[INFO] 2025-08-17 17:45:33 - RuntimeEngine - Loaded agents: ['ollama_agent', 'echo_agent']

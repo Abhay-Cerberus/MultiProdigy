@@ -1,0 +1,2 @@
+[INFO] 2025-08-17 09:26:43 - OllamaAgent - Received message: {'content': 'What is AI?'}
+[INFO] 2025-08-17 09:26:43 - OllamaAgent - Sending response: {'ollama_output': 'Processed with mistral'}

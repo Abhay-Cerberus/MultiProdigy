@@ -1,2 +1,3 @@
+from .message import Message
 
-from .schemas import AgentConfig, Message, BusPayload
+__all__ = ["Message"]
