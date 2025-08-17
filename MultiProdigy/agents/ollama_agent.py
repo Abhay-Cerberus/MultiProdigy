@@ -1,14 +1,8 @@
 import subprocess
-from MultiProdigy.agents.agent_base import AgentBase
+from MultiProdigy.agents.agent_base import BaseAgent
 from MultiProdigy.schemas.schemas import Message
 
-from MultiProdigy.logging_custom.logger import setup_logger
-
-
-logger = setup_logger("OllamaAgent")
-
-class OllamaAgent(AgentBase):
-
+class OllamaAgent(BaseAgent):
     def __init__(self, runtime):
         super().__init__("OllamaAgent", runtime)
 
@@ -45,17 +39,4 @@ class OllamaAgent(AgentBase):
             error_msg = f"[OllamaAgent] Exception: {str(e)}"
             print(error_msg)
             return error_msg
-        
-class OllamaAgent:
-    def __init__(self, message_bus, model_name="mistral"):
-        self.message_bus = message_bus
-        self.model_name = model_name
 
-    def handle_message(self, message):
-        logger.info(f"Received message: {message}")
-
-        # Example Ollama call (pseudo code)
-        response = {"ollama_output": f"Processed with {self.model_name}"}
-
-        logger.info(f"Sending response: {response}")
-        self.message_bus.publish("TargetAgentName", response)
