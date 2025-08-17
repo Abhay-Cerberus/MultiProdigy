@@ -1,13 +1,15 @@
-from pydantic import BaseModel
-from typing import Any, Optional, Dict
+from pydantic import BaseModel, Field
 
 class Message(BaseModel):
-    """
-    A standard message format for communication between agents via the MessageBus.
-    """
+    sender: str
+    receiver: str
+    content: str
+    metadata: dict = Field(default_factory=dict)
 
-    sender: str                     # Name or ID of the sending agent
-    recipient: str                  # Name or ID of the recipient agent
-    content: Any                     # Actual payload (text, dict, object, etc.)
-    type: Optional[str] = "text"     # Type of message: 'text', 'command', 'data', etc.
-    metadata: Optional[Dict[str, Any]] = None  # Additional info (timestamp, tags, etc.)
+    def copy_with_new_content(self, new_content: str):
+        return Message(
+            sender=self.sender,
+            receiver=self.receiver,
+            content=new_content,
+            metadata=self.metadata.copy()
+        )
