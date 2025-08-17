@@ -69,8 +69,8 @@ class EnhancedLogger:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute(
-                    "INSERT INTO logs (agent_name, level, message) VALUES (?, ?, ?)",
-                    (self.agent_name, level, message)
+                  "INSERT INTO logs (timestamp, agent_name, level, message) VALUES (datetime('now'), ?, ?, ?)",
+                   (self.agent_name, level, message)
                 )
                 conn.commit()
         except Exception as e:
