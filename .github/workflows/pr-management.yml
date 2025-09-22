@@ -1,0 +1,218 @@
+name: Pull Request Management
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, ready_for_review]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  pr-validation:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened' || github.event.action == 'edited'
+    steps:
+      - name: Check PR title format
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const title = pr.title;
+            
+            const conventionalCommitRegex = /^(feat|fix|docs|style|refactor|test|chore|perf|ci|build)(\(.+\))?: .+/;
+            
+            if (!conventionalCommitRegex.test(title)) {
+              const comment = [
+                '⚠️ **PR Title Format**',
+                '',
+                'Your PR title doesn\'t follow our conventional commit format. Please update it to match this pattern:',
+                '',
+                '```',
+                '<type>[optional scope]: <description>',
+                '```',
+                '',
+                '**Examples:**',
+                '- `feat: add multimodal agent support`',
+                '- `fix(agents): resolve memory leak in message processing`',
+                '- `docs: update API documentation`',
+                '- `refactor(llm): improve provider abstraction`',
+                '',
+                '**Valid types:** feat, fix, docs, style, refactor, test, chore, perf, ci, build',
+                '',
+                'This helps us generate meaningful changelogs and understand the impact of changes.'
+              ].join('\n');
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['needs-title-fix']
+              });
+            } else {
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  name: 'needs-title-fix'
+                });
+              } catch (error) {
+                // Label might not exist, ignore error
+              }
+            }
+
+  welcome-first-time-contributor:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - name: Welcome first-time contributors
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator: pr.user.login,
+              state: 'all'
+            });
+            
+            if (prs.length === 1) {
+              const welcomeMessage = [
+                `🎉 **Welcome to MultiProdigy, @${pr.user.login}!**`,
+                '',
+                'Thank you for your first contribution! Here\'s what happens next:',
+                '',
+                '1. **Automated checks** will run to validate your code',
+                '2. **Maintainers will review** your changes',
+                '3. **Feedback** may be provided for improvements',
+                '4. **Once approved**, your PR will be merged',
+                '',
+                '**While you wait:**',
+                '- Make sure all checks pass ✅',
+                '- Respond to any review feedback',
+                '- Join our [community discussions](https://github.com/Abhay-Cerberus/MultiProdigy/discussions)',
+                '',
+                'We appreciate your contribution to making MultiProdigy better! 🚀'
+              ].join('\n');
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: welcomeMessage
+              });
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['first-time-contributor']
+              });
+            }
+
+  auto-label-pr:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened' || github.event.action == 'synchronize'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Auto-label based on files changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            const labels = new Set();
+            
+            for (const file of files) {
+              const filename = file.filename;
+              
+              if (filename.includes('MultiProdigy/agents/')) {
+                labels.add('component:agents');
+              }
+              if (filename.includes('MultiProdigy/llm/')) {
+                labels.add('component:llm');
+              }
+              if (filename.includes('MultiProdigy/observability/')) {
+                labels.add('component:observability');
+              }
+              if (filename.includes('docs/')) {
+                labels.add('documentation');
+              }
+              if (filename.includes('tests/')) {
+                labels.add('testing');
+              }
+              if (filename.includes('.md')) {
+                labels.add('documentation');
+              }
+              if (filename.includes('requirements') || filename.includes('pyproject.toml')) {
+                labels.add('dependencies');
+              }
+              if (filename.includes('.github/workflows/')) {
+                labels.add('ci/cd');
+              }
+            }
+            
+            const totalChanges = files.reduce((sum, file) => sum + file.changes, 0);
+            if (totalChanges < 10) {
+              labels.add('size:small');
+            } else if (totalChanges < 100) {
+              labels.add('size:medium');
+            } else {
+              labels.add('size:large');
+            }
+            
+            if (labels.size > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: Array.from(labels)
+              });
+            }
+
+  celebrate-merge:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Celebrate successful merge
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            const celebrationMessage = [
+              `🎉 **Congratulations @${pr.user.login}!**`,
+              '',
+              'Your contribution has been merged! Thank you for making MultiProdigy better.',
+              '',
+              '**What\'s next?**',
+              '- Your changes will be included in the next release',
+              '- Check out other [open issues](https://github.com/Abhay-Cerberus/MultiProdigy/issues) you might be interested in',
+              '- Join our [community discussions](https://github.com/Abhay-Cerberus/MultiProdigy/discussions)',
+              '- Follow the project for updates',
+              '',
+              'Keep up the great work! 🚀'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: celebrationMessage
+            });

@@ -1,30 +1,48 @@
-name: 🐛 Bug report
-about: Create a report to help us improve
-title: "[BUG] <short description>"
-labels: bug
+---
+name: 🐛 Bug Report
+about: Report a bug to help us improve MultiProdigy
+title: '[BUG] '
+labels: ['bug', 'needs-triage']
 assignees: ''
-
 ---
 
-**Describe the bug**  
-A clear and concise description of what the bug is.
+## Bug Description
+**Describe the bug clearly and concisely**
+A clear description of what the bug is and what you expected to happen.
 
-**To Reproduce**  
-Steps to reproduce the behavior:
-1. …
-2. …
-3. …
+## Reproduction Steps
+**Steps to reproduce the behavior:**
+1. 
+2. 
+3. 
+4. 
 
-**Expected behavior**  
-What you expected to happen.
+## Environment Information
+**Please complete the following information:**
+- OS: [e.g. Windows 11, macOS 13, Ubuntu 22.04]
+- Python Version: [e.g. 3.11.5]
+- MultiProdigy Version: [e.g. 1.2.3]
+- LLM Provider: [e.g. OpenAI, Gemini, Claude]
 
-**Screenshots/Logs**  
-If applicable, add screenshots or logs.
+## Error Details
+**Error messages or logs (if any):**
+```
+Paste error messages or relevant logs here
+```
 
-**Environment:**  
-- prodigal-ai-agents version:  
-- Python version:  
-- OS:  
+## Expected vs Actual Behavior
+**Expected behavior:**
+A clear description of what you expected to happen.
 
-**Additional context**  
+**Actual behavior:**
+A clear description of what actually happened.
+
+## Additional Context
+**Screenshots, configuration files, or other context:**
 Add any other context about the problem here.
+
+## Checklist
+- [ ] I have searched existing issues to ensure this is not a duplicate
+- [ ] I have provided all the requested information
+- [ ] I have tested this with the latest version of MultiProdigy
+- [ ] I have included relevant error messages or logs

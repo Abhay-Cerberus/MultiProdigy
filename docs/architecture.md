@@ -1,27 +1,22 @@
 # 🏗️ MultiProdigy Architecture
 
-## 🧱 System Overview
-
-MultiProdigy is a modular, schema-driven multi-agent framework with integrated LLM support and real-time observability.
+Modular, schema-driven multi-agent framework with integrated LLM support and real-time observability.
 
 ![MultiProdigy Architecture](MultiProdigy.svg)
 
-## 🔧 Core Components
+## 🧱 Core Components
 
 ### **Agent Layer**
 ```
 BaseAgent (Abstract)
-├── SyncLLMAgent (LLM-powered)
-├── TestAllLLMAgent (Multi-provider testing)
-├── SmartResearchAgent (Intelligent research)
+├── Specialized Agents (Research, Echo, etc.)
 └── Custom Agents (User-defined)
 ```
 
 ### **Communication Layer**
 ```
 MessageBus
-├── Agent Registration
-├── Message Routing
+├── Agent Registration & Routing
 ├── Automatic Tracing
 └── Error Handling
 ```
@@ -29,17 +24,15 @@ MessageBus
 ### **LLM Integration Layer**
 ```
 LLMFactory
-├── APILLMClient (OpenAI, Gemini, Anthropic)
-├── LocalLLMClient (Ollama, HuggingFace)
-├── MockClient (Testing)
-└── Unified Response Format
+├── API Clients (OpenAI, Gemini, Anthropic)
+├── Local Clients (Ollama, HuggingFace)
+└── Mock Client (Testing)
 ```
 
 ### **Observability Layer**
 ```
 ObservabilityDashboard
-├── Real-time Metrics
-├── Agent Timeline
+├── Real-time Metrics & Timeline
 ├── Network Visualization
 └── Performance Tracking
 ```
@@ -47,36 +40,28 @@ ObservabilityDashboard
 ## 🔄 Data Flow
 
 ### **Message Flow**
-1. **Agent** sends message via `self.send(content, target)`
-2. **MessageBus** routes message to target agent
-3. **Tracer** logs the interaction automatically
-4. **Target Agent** processes via `on_message(message)`
-5. **Dashboard** displays real-time updates
+1. Agent sends via `self.send(content, target)`
+2. MessageBus routes to target agent
+3. Tracer logs interaction automatically
+4. Target processes via `on_message(message)`
+5. Dashboard displays real-time updates
 
 ### **LLM Integration Flow**
-1. **Agent** creates LLM client via `LLMFactory`
-2. **Client** handles API calls with unified interface
-3. **Response** returned in standardized format
-4. **Agent** processes and sends response
-5. **Observability** tracks LLM performance
+1. Agent creates LLM client via `LLMFactory`
+2. Client handles API calls with unified interface
+3. Response returned in standardized format
+4. Observability tracks LLM performance
 
-### **Observability Flow**
-1. **Tracer** captures all agent interactions
-2. **Events** stored in structured JSON logs
-3. **Dashboard** reads logs and builds metrics
-4. **Graph Builder** creates network visualization
-5. **Web Interface** displays real-time updates
-
-## 🎯 Key Design Principles
+## 🎯 Design Principles
 
 ### **Modularity**
-- Each component has a single responsibility
-- Easy to extend with new agents or LLM providers
-- Plugin-based architecture for customization
+- Single responsibility per component
+- Easy extension with new agents/providers
+- Plugin-based architecture
 
 ### **Type Safety**
 - Pydantic models for all configurations
-- Schema validation throughout the system
+- Schema validation throughout system
 - Clear interfaces and contracts
 
 ### **Observability First**
@@ -86,67 +71,49 @@ ObservabilityDashboard
 
 ### **LLM Agnostic**
 - Unified interface for all AI providers
-- Easy switching between providers
-- Consistent error handling and fallbacks
+- Easy provider switching
+- Consistent error handling
 
 ## 📊 Component Interactions
 
 ```mermaid
 graph TB
     A[User] --> B[Demo Runner]
-    B --> C[Agent Factory]
-    C --> D[BaseAgent]
-    D --> E[MessageBus]
-    E --> F[Tracer]
-    F --> G[Dashboard]
+    B --> C[BaseAgent]
+    C --> D[MessageBus]
+    D --> E[Tracer]
+    E --> F[Dashboard]
     
-    D --> H[LLMFactory]
-    H --> I[API Clients]
-    H --> J[Local Clients]
-    H --> K[Mock Client]
+    C --> G[LLMFactory]
+    G --> H[API Clients]
+    G --> I[Local Clients]
     
-    G --> L[Web Interface]
-    G --> M[Network Graph]
+    F --> J[Web Interface]
+    F --> K[Network Graph]
     
     subgraph "LLM Providers"
-        I --> N[OpenAI]
-        I --> O[Gemini]
-        I --> P[Anthropic]
-        J --> Q[Ollama]
-        J --> R[HuggingFace]
+        H --> L[OpenAI/Gemini/Anthropic]
+        I --> M[Ollama/HuggingFace]
     end
 ```
 
-## 🚀 Scalability Features
+## 🚀 Scalability & Error Handling
 
-### **Horizontal Scaling**
-- Multiple agents can run concurrently
-- Message bus handles routing efficiently
-- Observability scales with agent count
+### **Scalability**
+- Concurrent agent execution
+- Efficient message routing
+- Performance monitoring and bottleneck identification
 
-### **Provider Flexibility**
-- Easy to add new LLM providers
-- Automatic fallback mechanisms
-- Load balancing across providers
+### **Error Handling**
+- Graceful degradation (LLM failures → mock responses)
+- Configurable timeouts with proper cancellation
+- Comprehensive error tracking and recovery
 
-### **Performance Monitoring**
-- Real-time metrics collection
-- Performance bottleneck identification
-- Resource usage tracking
+## 🔗 Related Documentation
 
-## 🔒 Error Handling Strategy
+- [🤖 Agent Development](guides/agent_development.md) - Building custom agents
+- [🧠 LLM Integration](guides/llm_integration.md) - Working with AI providers
+- [📊 Observability](guides/observability.md) - Monitoring and debugging
+- [🗂️ Modules Reference](modules_reference.md) - Complete API reference
 
-### **Graceful Degradation**
-- LLM failures fall back to mock responses
-- Agent errors don't crash the system
-- Comprehensive error logging and recovery
-
-### **Timeout Management**
-- Configurable timeouts for all operations
-- Async operations with proper cancellation
-- Resource cleanup on failures
-
-### **Monitoring Integration**
-- All errors automatically tracked
-- Real-time error rate monitoring
-- Detailed error context and stack traces
+**Ready to build?** Start with the [🚀 Getting Started Guide](getting_started.md)!

@@ -1,0 +1,392 @@
+name: Contribution CI/CD
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install black isort flake8 mypy pytest pytest-cov pytest-asyncio
+
+      - name: Check code formatting with Black
+        run: |
+          black --check --diff .
+        continue-on-error: true
+        id: black-check
+
+      - name: Check import sorting with isort
+        run: |
+          isort --check-only --diff .
+        continue-on-error: true
+        id: isort-check
+
+      - name: Lint with flake8
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+        continue-on-error: true
+        id: flake8-check
+
+      - name: Type check with mypy
+        run: |
+          mypy MultiProdigy/ --ignore-missing-imports
+        continue-on-error: true
+        id: mypy-check
+
+      - name: Comment on PR with code quality results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const blackStatus = '${{ steps.black-check.outcome }}';
+            const isortStatus = '${{ steps.isort-check.outcome }}';
+            const flake8Status = '${{ steps.flake8-check.outcome }}';
+            const mypyStatus = '${{ steps.mypy-check.outcome }}';
+            
+            let comment = '## 🔍 Code Quality Report\n\n';
+            
+            comment += `| Check | Status |\n`;
+            comment += `|-------|--------|\n`;
+            comment += `| Black (formatting) | ${blackStatus === 'success' ? '✅ Pass' : '❌ Fail'} |\n`;
+            comment += `| isort (imports) | ${isortStatus === 'success' ? '✅ Pass' : '❌ Fail'} |\n`;
+            comment += `| flake8 (linting) | ${flake8Status === 'success' ? '✅ Pass' : '❌ Fail'} |\n`;
+            comment += `| mypy (type checking) | ${mypyStatus === 'success' ? '✅ Pass' : '❌ Fail'} |\n\n`;
+            
+            if (blackStatus !== 'success' || isortStatus !== 'success') {
+              comment += '### 🔧 Fix formatting:\n```bash\nblack .\nisort .\n```\n\n';
+            }
+            
+            if (flake8Status !== 'success') {
+              comment += '### 🐛 Fix linting issues shown above\n\n';
+            }
+            
+            if (mypyStatus !== 'success') {
+              comment += '### 🏷️ Consider adding type hints\n\n';
+            }
+            
+            // Find existing comment and update it, or create new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            
+            const existingComment = comments.find(comment => 
+              comment.body.includes('🔍 Code Quality Report')
+            );
+            
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+  test-suite:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-${{ hashFiles('**/requirements*.txt') }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-asyncio pytest-mock
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ -v --cov=MultiProdigy --cov-report=xml --cov-report=term-missing
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.11'
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+      - name: Comment coverage report on PR
+        if: github.event_name == 'pull_request' && matrix.python-version == '3.11'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Read coverage report if it exists
+            let coverageComment = '## 📊 Test Coverage Report\n\n';
+            
+            try {
+              // This is a simplified version - in practice you'd parse the XML coverage report
+              coverageComment += '✅ Tests completed successfully!\n\n';
+              coverageComment += 'Detailed coverage report will be available on Codecov once uploaded.\n\n';
+              coverageComment += '**Please ensure:**\n';
+              coverageComment += '- [ ] All new code has appropriate tests\n';
+              coverageComment += '- [ ] Test coverage remains above 80%\n';
+              coverageComment += '- [ ] All tests pass locally\n';
+            } catch (error) {
+              coverageComment += '❌ Could not generate coverage report\n';
+            }
+            
+            // Find existing comment and update it, or create new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            
+            const existingComment = comments.find(comment => 
+              comment.body.includes('📊 Test Coverage Report')
+            );
+            
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: coverageComment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: coverageComment
+              });
+            }
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install security tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit safety
+
+      - name: Run Bandit security scan
+        run: |
+          bandit -r MultiProdigy/ -f json -o bandit-report.json
+        continue-on-error: true
+
+      - name: Run Safety check
+        run: |
+          safety check --json --output safety-report.json
+        continue-on-error: true
+
+      - name: Comment security scan results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let securityComment = '## 🔒 Security Scan Report\n\n';
+            
+            try {
+              const fs = require('fs');
+              
+              // Check Bandit results
+              if (fs.existsSync('bandit-report.json')) {
+                const banditReport = JSON.parse(fs.readFileSync('bandit-report.json', 'utf8'));
+                const highSeverity = banditReport.results.filter(r => r.issue_severity === 'HIGH').length;
+                const mediumSeverity = banditReport.results.filter(r => r.issue_severity === 'MEDIUM').length;
+                
+                securityComment += `**Bandit Security Scan:**\n`;
+                securityComment += `- High severity issues: ${highSeverity}\n`;
+                securityComment += `- Medium severity issues: ${mediumSeverity}\n\n`;
+                
+                if (highSeverity > 0) {
+                  securityComment += '⚠️ **High severity security issues found!** Please review and fix before merging.\n\n';
+                }
+              }
+              
+              securityComment += '✅ Security scan completed. Please review any findings above.\n';
+              
+            } catch (error) {
+              securityComment += '❌ Could not parse security scan results\n';
+            }
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: securityComment
+            });
+
+  performance-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: pr
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-benchmark
+
+      - name: Run performance tests on base
+        run: |
+          cd base
+          if [ -d "tests/performance" ]; then
+            pytest tests/performance/ --benchmark-json=../base-benchmark.json
+          fi
+        continue-on-error: true
+
+      - name: Run performance tests on PR
+        run: |
+          cd pr
+          if [ -d "tests/performance" ]; then
+            pytest tests/performance/ --benchmark-json=../pr-benchmark.json
+          fi
+        continue-on-error: true
+
+      - name: Compare performance
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let performanceComment = '## ⚡ Performance Impact Report\n\n';
+            
+            try {
+              if (fs.existsSync('base-benchmark.json') && fs.existsSync('pr-benchmark.json')) {
+                performanceComment += '📊 Performance benchmarks completed.\n\n';
+                performanceComment += '**Note:** Detailed performance comparison requires benchmark analysis tools.\n';
+                performanceComment += 'Please ensure your changes do not significantly impact performance.\n\n';
+              } else {
+                performanceComment += '📝 No performance tests found or benchmarks could not be run.\n\n';
+                performanceComment += 'Consider adding performance tests for critical code paths.\n';
+              }
+            } catch (error) {
+              performanceComment += '❌ Could not run performance comparison\n';
+            }
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: performanceComment
+            });
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio
+
+      - name: Run integration tests
+        run: |
+          if [ -d "tests/integration" ]; then
+            pytest tests/integration/ -v
+          else
+            echo "No integration tests found"
+          fi
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Comment integration test results
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const testStatus = '${{ job.status }}';
+            let integrationComment = '## 🔗 Integration Test Report\n\n';
+            
+            if (testStatus === 'success') {
+              integrationComment += '✅ All integration tests passed!\n\n';
+            } else {
+              integrationComment += '❌ Some integration tests failed. Please check the logs above.\n\n';
+            }
+            
+            integrationComment += '**Integration tests verify:**\n';
+            integrationComment += '- Component interactions work correctly\n';
+            integrationComment += '- External API integrations function properly\n';
+            integrationComment += '- End-to-end workflows complete successfully\n';
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: integrationComment
+            });

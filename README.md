@@ -35,13 +35,15 @@ See [demo/README.md](demo/README.md) for detailed demo descriptions.
 
 -------
 
-## Documentation
+## 📚 Documentation
 
-- [Getting Started](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/docs/getting_started.md)  
-- [Architecture](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/docs/architecture.md)  
-- [Module Reference](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/docs/modules_reference.md)  
-- [Demo Guide](demo/README.md)
-- [Observability Guide](docs/observability/user_guide.md) 
+- [📚 **Documentation Hub**](docs/README.md) - Complete documentation index
+- [🚀 **Getting Started**](docs/getting_started.md) - Quick start guide  
+- [🔧 **Installation**](docs/installation.md) - Detailed setup instructions
+- [🏗️ **Architecture**](docs/architecture.md) - System design overview
+- [🗂️ **API Reference**](docs/modules_reference.md) - Complete module reference
+- [🎯 **Demo Guide**](docs/sample_agent_demo.md) - Explore all demos
+- [📊 **Observability**](docs/observability/user_guide.md) - Monitoring and debugging 
 
 ## 🔑 API Key Setup
 
@@ -102,10 +104,15 @@ such as learning, reasoning, problem-solving, and language understanding...
 
 --------
 
-### If you want to Contribute to the Project
+## 🤝 Contributing
 
-- Before Contributing, Read our [CODE OF CONDUCT](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/CODE_OF_CONDUCT.md) first
-- [Contribution](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/CONTRIBUTING.md)
+We welcome contributions from developers of all skill levels!
+
+- [🤝 **Contributing Guide**](CONTRIBUTING.md) - How to contribute to the project
+- [📜 **Code of Conduct**](CODE_OF_CONDUCT.md) - Community guidelines
+- [🏆 **Contribution System**](docs/CONTRIBUTION_SYSTEM.md) - Automated workflows and recognition
+- [🐛 **Report Issues**](https://github.com/Abhay-Cerberus/MultiProdigy/issues) - Bug reports and feature requests
+- [💬 **Discussions**](https://github.com/Abhay-Cerberus/MultiProdigy/discussions) - Community discussions
 
 ---
 

@@ -1,0 +1,180 @@
+name: Contributor Recognition
+
+on:
+  pull_request:
+    types: [closed]
+  issues:
+    types: [closed]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sunday
+
+jobs:
+  recognize-contribution:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true || github.event.issue.state == 'closed'
+    steps:
+      - name: Recognize merged PR
+        if: github.event.pull_request.merged == true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const contributor = pr.user.login;
+            
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator: contributor,
+              state: 'closed'
+            });
+            
+            const mergedPRs = prs.filter(pr => pr.merged_at);
+            const isFirstContribution = mergedPRs.length === 1;
+            
+            let recognitionMessage = '';
+            
+            if (isFirstContribution) {
+              recognitionMessage = [
+                '🎉 **First Contribution Merged!**',
+                '',
+                `Congratulations @${contributor} on your first merged contribution to MultiProdigy!`,
+                '',
+                '**Achievement Unlocked:** 🌟 First Contributor',
+                '',
+                '**What\'s next?**',
+                '- You\'re now part of our contributor community!',
+                '- Check out more [issues to work on](https://github.com/Abhay-Cerberus/MultiProdigy/issues)',
+                '- Join our [community discussions](https://github.com/Abhay-Cerberus/MultiProdigy/discussions)',
+                '- Consider helping other newcomers',
+                '',
+                'Thank you for making MultiProdigy better! 🚀'
+              ].join('\n');
+            } else {
+              let level = '';
+              let badge = '';
+              
+              if (mergedPRs.length >= 20) {
+                level = 'Core Contributor';
+                badge = '🏆';
+              } else if (mergedPRs.length >= 10) {
+                level = 'Regular Contributor';
+                badge = '⭐';
+              } else if (mergedPRs.length >= 5) {
+                level = 'Active Contributor';
+                badge = '🔥';
+              } else {
+                level = 'Contributor';
+                badge = '✨';
+              }
+              
+              recognitionMessage = [
+                `${badge} **Contribution #${mergedPRs.length} Merged!**`,
+                '',
+                `Thank you @${contributor} for another great contribution!`,
+                '',
+                `**Current Level:** ${level} (${mergedPRs.length} merged PRs)`,
+                '',
+                'Keep up the excellent work! 🚀'
+              ].join('\n');
+            }
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: recognitionMessage
+            });
+
+      - name: Recognize issue resolution
+        if: github.event.issue.state == 'closed' && github.event.issue.state_reason == 'completed'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            
+            if (issue.closed_by && issue.closed_by.login !== issue.user.login) {
+              const resolver = issue.closed_by.login;
+              
+              const recognitionMessage = [
+                '🎯 **Issue Resolved!**',
+                '',
+                `Thank you @${resolver} for resolving this issue!`,
+                '',
+                '**Achievement:** 🔧 Problem Solver',
+                '',
+                'Your help in maintaining and improving MultiProdigy is greatly appreciated! 🙏'
+              ].join('\n');
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: recognitionMessage
+              });
+            }
+
+  milestone-achievements:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Check for milestone achievements
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const contributor = context.payload.pull_request.user.login;
+            
+            const { data: allPRs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator: contributor,
+              state: 'closed',
+              per_page: 100
+            });
+            
+            const mergedPRs = allPRs.filter(pr => pr.merged_at);
+            const prCount = mergedPRs.length;
+            
+            const milestones = [
+              { count: 1, title: 'First Contribution', badge: '🌟', description: 'Welcome to the community!' },
+              { count: 5, title: 'Active Contributor', badge: '🔥', description: 'You\'re on fire!' },
+              { count: 10, title: 'Regular Contributor', badge: '⭐', description: 'A valued team member!' },
+              { count: 25, title: 'Core Contributor', badge: '🏆', description: 'Essential to the project!' },
+              { count: 50, title: 'Legendary Contributor', badge: '👑', description: 'A true legend!' },
+              { count: 100, title: 'Master Contributor', badge: '🎖️', description: 'Master of the craft!' }
+            ];
+            
+            const achievedMilestone = milestones.find(m => m.count === prCount);
+            
+            if (achievedMilestone) {
+              const achievementMessage = [
+                `${achievedMilestone.badge} **MILESTONE ACHIEVED!** ${achievedMilestone.badge}`,
+                '',
+                `🎉 Congratulations @${contributor}! You've reached the **${achievedMilestone.title}** milestone with ${prCount} merged contributions!`,
+                '',
+                achievedMilestone.description,
+                '',
+                '**Your Impact:**',
+                `- ${prCount} merged pull requests`,
+                '- Countless improvements to MultiProdigy',
+                '- Inspiration for other contributors',
+                '',
+                'Thank you for your dedication to making MultiProdigy better! 🚀',
+                '',
+                '---',
+                '*This achievement has been added to your contributor profile.*'
+              ].join('\n');
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: achievementMessage
+              });
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['milestone-achievement']
+              });
+            }

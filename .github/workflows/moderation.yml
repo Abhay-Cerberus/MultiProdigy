@@ -1,0 +1,250 @@
+name: Community Moderation
+
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created, edited]
+  pull_request:
+    types: [opened, edited]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  content-moderation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for inappropriate content
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const inappropriateWords = ['spam', 'scam', 'hack', 'crack'];
+            const offensiveWords = [];
+            
+            let content = '';
+            let contentType = '';
+            
+            if (context.eventName === 'issues') {
+              content = context.payload.issue.body || '';
+              contentType = 'issue';
+            } else if (context.eventName === 'issue_comment') {
+              content = context.payload.comment.body || '';
+              contentType = 'comment';
+            } else if (context.eventName === 'pull_request') {
+              content = context.payload.pull_request.body || '';
+              contentType = 'pull_request';
+            }
+            
+            const lowerContent = content.toLowerCase();
+            
+            const foundInappropriate = inappropriateWords.some(word => 
+              lowerContent.includes(word.toLowerCase())
+            );
+            
+            const foundOffensive = offensiveWords.some(word => 
+              lowerContent.includes(word.toLowerCase())
+            );
+            
+            if (foundOffensive) {
+              if (contentType === 'issue' || contentType === 'pull_request') {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  labels: ['needs-moderation', 'inappropriate-content']
+                });
+                
+                const moderationComment = [
+                  '🚨 **Content Flagged for Moderation**',
+                  '',
+                  `This ${contentType} has been automatically flagged for containing potentially inappropriate content. A moderator will review it shortly.`,
+                  '',
+                  '**Community Guidelines:**',
+                  '- Be respectful and professional',
+                  '- Follow our [Code of Conduct](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/CODE_OF_CONDUCT.md)',
+                  '- Keep discussions relevant to the project',
+                  '',
+                  'If you believe this was flagged in error, please contact the maintainers.'
+                ].join('\n');
+
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: moderationComment
+                });
+              }
+            } else if (foundInappropriate) {
+              const warningComment = [
+                '⚠️ **Content Warning**',
+                '',
+                `Your ${contentType} may contain content that doesn't align with our community guidelines. Please review our [Code of Conduct](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/CODE_OF_CONDUCT.md) and consider editing your content.`,
+                '',
+                '**Guidelines:**',
+                '- Keep discussions professional and project-related',
+                '- Avoid promotional or spam content',
+                '- Be respectful to all community members'
+              ].join('\n');
+
+              if (contentType === 'comment') {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: warningComment
+                });
+              } else {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  labels: ['needs-review']
+                });
+                
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: warningComment
+                });
+              }
+            }
+
+  spam-detection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Detect potential spam
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let content = '';
+            let author = '';
+            
+            if (context.eventName === 'issues') {
+              content = context.payload.issue.body || '';
+              author = context.payload.issue.user.login;
+            } else if (context.eventName === 'issue_comment') {
+              content = context.payload.comment.body || '';
+              author = context.payload.comment.user.login;
+            } else if (context.eventName === 'pull_request') {
+              content = context.payload.pull_request.body || '';
+              author = context.payload.pull_request.user.login;
+            }
+            
+            const spamIndicators = [
+              content.includes('http') && content.split('http').length > 3,
+              content.length > 1000 && content.split(' ').length < 50,
+              /(.)\1{10,}/.test(content),
+              content.includes('buy now') || content.includes('click here'),
+              content.includes('limited time') || content.includes('act now')
+            ];
+            
+            const spamScore = spamIndicators.filter(Boolean).length;
+            
+            if (spamScore >= 2) {
+              if (context.eventName === 'issues' || context.eventName === 'pull_request') {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  labels: ['potential-spam', 'needs-moderation']
+                });
+                
+                const spamComment = [
+                  '🤖 **Automated Spam Detection**',
+                  '',
+                  'This content has been flagged as potential spam based on automated analysis. A moderator will review it.',
+                  '',
+                  '**If this is not spam:**',
+                  '- Edit your content to be more specific to the project',
+                  '- Remove excessive links or promotional content',
+                  '- Follow our [contribution guidelines](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/CONTRIBUTING.md)',
+                  '',
+                  `**For moderators:** Spam score: ${spamScore}/5`
+                ].join('\n');
+
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: spamComment
+                });
+              }
+            }
+
+  quality-check:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - name: Check content quality
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let title = '';
+            let body = '';
+            let contentType = '';
+            
+            if (context.eventName === 'issues') {
+              title = context.payload.issue.title;
+              body = context.payload.issue.body || '';
+              contentType = 'issue';
+            } else if (context.eventName === 'pull_request') {
+              title = context.payload.pull_request.title;
+              body = context.payload.pull_request.body || '';
+              contentType = 'pull_request';
+            }
+            
+            const qualityIssues = [];
+            
+            if (title.length < 10) {
+              qualityIssues.push('Title is too short (less than 10 characters)');
+            }
+            if (title === title.toUpperCase() && title.length > 20) {
+              qualityIssues.push('Title is in ALL CAPS');
+            }
+            if (body.length < 50) {
+              qualityIssues.push('Description is too short (less than 50 characters)');
+            }
+            if (body.split('\n').length < 3 && body.length > 100) {
+              qualityIssues.push('Consider using paragraphs or bullet points for better readability');
+            }
+            
+            const hasTemplate = body.includes('##') || body.includes('**') || body.includes('- [');
+            if (!hasTemplate && body.length > 100) {
+              qualityIssues.push('Consider using our issue templates for better structure');
+            }
+            
+            if (qualityIssues.length > 0) {
+              const qualityComment = [
+                '📝 **Content Quality Suggestions**',
+                '',
+                `To help us better understand and address your ${contentType}, please consider these improvements:`,
+                '',
+                ...qualityIssues.map(issue => `- ${issue}`),
+                '',
+                `**Tips for better ${contentType}s:**`,
+                '- Use clear, descriptive titles',
+                '- Provide detailed descriptions',
+                `- Use our [${contentType} templates](https://github.com/Abhay-Cerberus/MultiProdigy/issues/new/choose)`,
+                '- Include relevant examples or screenshots',
+                '- Follow our [contributing guidelines](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/CONTRIBUTING.md)',
+                '',
+                `You can edit your ${contentType} to improve it!`
+              ].join('\n');
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: qualityComment
+              });
+              
+              if (qualityIssues.length >= 3) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  labels: ['needs-improvement']
+                });
+              }
+            }

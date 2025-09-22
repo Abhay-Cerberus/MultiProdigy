@@ -1,0 +1,282 @@
+# GitHub Labels Configuration for MultiProdigy
+# This file defines all labels used in the contribution system
+
+# Priority Labels
+- name: "priority:critical"
+  color: "d73a4a"
+  description: "Critical priority - needs immediate attention"
+
+- name: "priority:high"
+  color: "ff6b6b"
+  description: "High priority - should be addressed soon"
+
+- name: "priority:medium"
+  color: "ffa726"
+  description: "Medium priority - normal timeline"
+
+- name: "priority:low"
+  color: "4fc3f7"
+  description: "Low priority - can be addressed later"
+
+# Type Labels
+- name: "bug"
+  color: "d73a4a"
+  description: "Something isn't working"
+
+- name: "enhancement"
+  color: "a2eeef"
+  description: "New feature or request"
+
+- name: "documentation"
+  color: "0075ca"
+  description: "Improvements or additions to documentation"
+
+- name: "question"
+  color: "d876e3"
+  description: "Further information is requested"
+
+- name: "duplicate"
+  color: "cfd3d7"
+  description: "This issue or pull request already exists"
+
+- name: "invalid"
+  color: "e4e669"
+  description: "This doesn't seem right"
+
+- name: "wontfix"
+  color: "ffffff"
+  description: "This will not be worked on"
+
+# Difficulty/Experience Labels
+- name: "good first issue"
+  color: "7057ff"
+  description: "Good for newcomers"
+
+- name: "beginner-friendly"
+  color: "7057ff"
+  description: "Suitable for beginners"
+
+- name: "intermediate"
+  color: "ff9500"
+  description: "Requires some experience"
+
+- name: "advanced"
+  color: "d73a4a"
+  description: "Requires significant experience"
+
+- name: "help wanted"
+  color: "008672"
+  description: "Extra attention is needed"
+
+# Component Labels
+- name: "component:agents"
+  color: "1d76db"
+  description: "Related to agent system"
+
+- name: "component:llm"
+  color: "1d76db"
+  description: "Related to LLM integration"
+
+- name: "component:observability"
+  color: "1d76db"
+  description: "Related to observability/dashboard"
+
+- name: "component:storage"
+  color: "1d76db"
+  description: "Related to storage systems"
+
+- name: "component:api"
+  color: "1d76db"
+  description: "Related to API"
+
+- name: "component:ui"
+  color: "1d76db"
+  description: "Related to user interface"
+
+# Status Labels
+- name: "needs-triage"
+  color: "fbca04"
+  description: "Needs to be triaged by maintainers"
+
+- name: "needs-more-info"
+  color: "fbca04"
+  description: "More information needed from reporter"
+
+- name: "needs-review"
+  color: "fbca04"
+  description: "Needs review from maintainers"
+
+- name: "needs-testing"
+  color: "fbca04"
+  description: "Needs testing before merge"
+
+- name: "needs-documentation"
+  color: "fbca04"
+  description: "Needs documentation updates"
+
+- name: "in-progress"
+  color: "0e8a16"
+  description: "Currently being worked on"
+
+- name: "blocked"
+  color: "b60205"
+  description: "Blocked by other issues or dependencies"
+
+- name: "ready-for-review"
+  color: "0e8a16"
+  description: "Ready for maintainer review"
+
+# Size Labels (for PRs)
+- name: "size:small"
+  color: "c2e0c6"
+  description: "Small change (< 10 lines)"
+
+- name: "size:medium"
+  color: "f9d71c"
+  description: "Medium change (10-100 lines)"
+
+- name: "size:large"
+  color: "f87171"
+  description: "Large change (> 100 lines)"
+
+# Change Type Labels
+- name: "breaking-change"
+  color: "d73a4a"
+  description: "Introduces breaking changes"
+
+- name: "potential-breaking-change"
+  color: "ff6b6b"
+  description: "May introduce breaking changes"
+
+- name: "feature"
+  color: "a2eeef"
+  description: "New feature implementation"
+
+- name: "bugfix"
+  color: "d73a4a"
+  description: "Bug fix"
+
+- name: "refactor"
+  color: "fef2c0"
+  description: "Code refactoring"
+
+- name: "performance"
+  color: "ff9500"
+  description: "Performance improvement"
+
+- name: "security"
+  color: "d73a4a"
+  description: "Security-related"
+
+- name: "testing"
+  color: "0e8a16"
+  description: "Related to testing"
+
+- name: "ci/cd"
+  color: "1f883d"
+  description: "Related to CI/CD"
+
+- name: "dependencies"
+  color: "0366d6"
+  description: "Related to dependencies"
+
+# Community Labels
+- name: "first-time-contributor"
+  color: "7057ff"
+  description: "First-time contributor"
+
+- name: "new-user"
+  color: "7057ff"
+  description: "New GitHub user"
+
+- name: "community"
+  color: "0e8a16"
+  description: "Community-related"
+
+- name: "recognition"
+  color: "ffd700"
+  description: "Contributor recognition"
+
+- name: "milestone-achievement"
+  color: "ffd700"
+  description: "Milestone achievement"
+
+# Moderation Labels
+- name: "needs-moderation"
+  color: "d73a4a"
+  description: "Needs moderator attention"
+
+- name: "inappropriate-content"
+  color: "d73a4a"
+  description: "Contains inappropriate content"
+
+- name: "potential-spam"
+  color: "ff6b6b"
+  description: "Potential spam content"
+
+- name: "needs-improvement"
+  color: "fbca04"
+  description: "Content needs improvement"
+
+- name: "potential-duplicate"
+  color: "cfd3d7"
+  description: "Potentially duplicate content"
+
+- name: "stale-assignment"
+  color: "fef2c0"
+  description: "Assignment is stale"
+
+# Quality Labels
+- name: "needs-title-fix"
+  color: "fbca04"
+  description: "Title needs to be fixed"
+
+- name: "needs-description"
+  color: "fbca04"
+  description: "Needs better description"
+
+- name: "high-quality"
+  color: "0e8a16"
+  description: "High quality contribution"
+
+# Special Labels
+- name: "hacktoberfest"
+  color: "ff6b6b"
+  description: "Hacktoberfest eligible"
+
+- name: "good-for-newcomers"
+  color: "7057ff"
+  description: "Good for newcomers to the project"
+
+- name: "mentor-available"
+  color: "0e8a16"
+  description: "Mentor available for this issue"
+
+- name: "research-needed"
+  color: "d876e3"
+  description: "Research needed before implementation"
+
+- name: "design-needed"
+  color: "d876e3"
+  description: "Design work needed"
+
+- name: "architecture"
+  color: "0366d6"
+  description: "Architectural changes"
+
+# Platform Labels
+- name: "platform:windows"
+  color: "0078d4"
+  description: "Windows-specific"
+
+- name: "platform:macos"
+  color: "000000"
+  description: "macOS-specific"
+
+- name: "platform:linux"
+  color: "fcc624"
+  description: "Linux-specific"
+
+- name: "platform:all"
+  color: "28a745"
+  description: "All platforms"

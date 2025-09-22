@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Community Discussions
+    url: https://github.com/Abhay-Cerberus/MultiProdigy/discussions
+    about: Ask questions, share ideas, and discuss with the community
+  - name: 🔒 Security Issues
+    url: https://github.com/Abhay-Cerberus/MultiProdigy/security/advisories/new
+    about: Report security vulnerabilities privately
+  - name: 📚 Documentation
+    url: https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/docs/getting_started.md
+    about: Check our documentation and guides

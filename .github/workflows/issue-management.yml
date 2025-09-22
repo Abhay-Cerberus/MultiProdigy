@@ -1,0 +1,187 @@
+name: Issue Management
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled]
+  issue_comment:
+    types: [created]
+
+jobs:
+  triage-new-issues:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - name: Add needs-triage label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['needs-triage']
+            });
+
+      - name: Welcome new contributors
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator: context.payload.issue.user.login,
+              state: 'all'
+            });
+            
+            if (issues.length === 1) {
+              const welcomeMessage = [
+                `👋 Welcome to MultiProdigy, @${context.payload.issue.user.login}!`,
+                '',
+                'Thank you for opening your first issue. Here are some helpful resources:',
+                '',
+                '- 📚 [Contributing Guide](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/CONTRIBUTING.md)',
+                '- 🚀 [Getting Started](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/docs/getting_started.md)',
+                '- 💬 [Community Discussions](https://github.com/Abhay-Cerberus/MultiProdigy/discussions)',
+                '',
+                'A maintainer will review your issue soon. If you\'re interested in contributing code, check out our [good first issues](https://github.com/Abhay-Cerberus/MultiProdigy/labels/good%20first%20issue)!'
+              ].join('\n');
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: welcomeMessage
+              });
+            }
+
+  auto-label-issues:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - name: Auto-label based on title and content
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const body = issue.body ? issue.body.toLowerCase() : '';
+            const labels = [];
+
+            if (title.includes('bug') || title.includes('error') || title.includes('fail')) {
+              labels.push('bug');
+            }
+            
+            if (title.includes('feature') || title.includes('enhancement') || body.includes('feature request')) {
+              labels.push('enhancement');
+            }
+            
+            if (title.includes('doc') || title.includes('documentation') || body.includes('documentation')) {
+              labels.push('documentation');
+            }
+            
+            if (body.includes('agent') || title.includes('agent')) {
+              labels.push('component:agents');
+            }
+            
+            if (body.includes('llm') || body.includes('openai') || body.includes('gemini')) {
+              labels.push('component:llm');
+            }
+
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labels
+              });
+            }
+
+  assign-good-first-issues:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'good first issue')
+    steps:
+      - name: Comment on good first issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = [
+              '🌟 **Good First Issue**',
+              '',
+              'This issue is perfect for newcomers! Here\'s how to get started:',
+              '',
+              '1. **Comment below** to let us know you\'re interested',
+              '2. **Fork the repository** and create a new branch',
+              '3. **Read our [Contributing Guide](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/CONTRIBUTING.md)**',
+              '4. **Set up your development environment** following our [setup guide](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/docs/getting_started.md)',
+              '5. **Ask questions** if you need help - we\'re here to support you!',
+              '',
+              '**Estimated time:** 1-4 hours',
+              '**Skills needed:** Basic Python knowledge',
+              '',
+              'Need help? Join our [discussions](https://github.com/Abhay-Cerberus/MultiProdigy/discussions) or comment below!'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+
+  handle-contributor-assignment:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'created' && contains(github.event.comment.body, 'I would like to work on this')
+    steps:
+      - name: Assign contributor to issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment;
+            const issue = context.payload.issue;
+            
+            if (issue.assignees.length > 0) {
+              const response = [
+                `@${comment.user.login} This issue is already assigned to @${issue.assignees[0].login}.`,
+                '',
+                'You can:',
+                '- Look for other [available issues](https://github.com/Abhay-Cerberus/MultiProdigy/issues?q=is%3Aissue+is%3Aopen+no%3Aassignee)',
+                '- Check out [good first issues](https://github.com/Abhay-Cerberus/MultiProdigy/labels/good%20first%20issue)',
+                '- Join our [discussions](https://github.com/Abhay-Cerberus/MultiProdigy/discussions)'
+              ].join('\n');
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: response
+              });
+              return;
+            }
+            
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              assignees: [comment.user.login]
+            });
+            
+            const response = [
+              `🎉 @${comment.user.login} has been assigned to this issue!`,
+              '',
+              '**Next steps:**',
+              '1. Fork the repository if you haven\'t already',
+              `2. Create a new branch: \`git checkout -b fix/issue-${context.issue.number}\``,
+              '3. Read our [Contributing Guide](https://github.com/Abhay-Cerberus/MultiProdigy/blob/main/CONTRIBUTING.md)',
+              '4. Ask questions if you need help!',
+              '',
+              '**Please note:** If there\'s no activity for 7 days, the issue may be unassigned to give others a chance.',
+              '',
+              'Good luck! 🚀'
+            ].join('\n');
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: response
+            });
