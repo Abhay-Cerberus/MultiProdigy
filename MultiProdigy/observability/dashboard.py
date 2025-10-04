@@ -1,18 +1,20 @@
 import json
-from pathlib import Path
-from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 try:
     from flask import Flask, jsonify, render_template_string
+
     FLASK_AVAILABLE = True
 except ImportError:
     FLASK_AVAILABLE = False
     print("Warning: Flask not available. Install with: pip install flask")
 
+
 class ObservabilityDashboard:
     """LangSmith-like dashboard for MultiProdigy agents"""
-    
+
     def __init__(self, log_file: str = "agent_traces.jsonl"):
         self.log_file = Path(log_file)
         if FLASK_AVAILABLE:
@@ -20,72 +22,73 @@ class ObservabilityDashboard:
             self._setup_routes()
         else:
             self.app = None
-    
+
     def _setup_routes(self):
         if not FLASK_AVAILABLE:
             return
-            
-        @self.app.route('/api/traces')
+
+        @self.app.route("/api/traces")
         def get_traces():
             """Get all traces with optional filtering"""
             traces = self._load_traces()
             return jsonify(traces)
-        
-        @self.app.route('/api/traces/<trace_id>')
+
+        @self.app.route("/api/traces/<trace_id>")
         def get_trace_details(trace_id):
             """Get detailed information for a specific trace"""
             traces = self._load_traces()
-            trace = next((t for t in traces if t.get('trace_id') == trace_id), None)
+            trace = next((t for t in traces if t.get("trace_id") == trace_id), None)
             if not trace:
-                return jsonify({'error': 'Trace not found'}), 404
+                return jsonify({"error": "Trace not found"}), 404
             return jsonify(trace)
-        
-        @self.app.route('/api/timeline')
+
+        @self.app.route("/api/timeline")
         def get_timeline():
             """Get timeline view of agent interactions"""
             traces = self._load_traces()
             timeline = self._build_timeline(traces)
             return jsonify(timeline)
-        
-        @self.app.route('/api/metrics')
+
+        @self.app.route("/api/metrics")
         def get_metrics():
             """Get performance metrics"""
             traces = self._load_traces()
             metrics = self._calculate_metrics(traces)
             return jsonify(metrics)
-        
-        @self.app.route('/api/graph')
+
+        @self.app.route("/api/graph")
         def get_graph():
             """Get graph visualization data"""
             try:
                 from .graph_builder import AgentGraphBuilder
+
                 builder = AgentGraphBuilder(self.log_file)
                 graph_data = builder.build_graph_data()
                 return jsonify(graph_data)
             except Exception as e:
                 return jsonify({"error": str(e), "nodes": [], "edges": []})
-        
-        @self.app.route('/static/graph.html')
+
+        @self.app.route("/static/graph.html")
         def graph_view():
             """Graph visualization page"""
-            graph_html_path = Path(__file__).parent / 'static' / 'graph.html'
+            graph_html_path = Path(__file__).parent / "static" / "graph.html"
             if graph_html_path.exists():
-                return graph_html_path.read_text(encoding='utf-8')
+                return graph_html_path.read_text(encoding="utf-8")
             return "Graph visualization not found", 404
-        
-        @self.app.route('/')
+
+        @self.app.route("/")
         def dashboard():
             """Main dashboard UI"""
             return render_template_string(DASHBOARD_HTML)
-    
+
     def _load_traces(self) -> List[Dict[str, Any]]:
         """Load traces from log file"""
         if not self.log_file.exists():
             return []
-        
+
         traces = []
         try:
-            with open(self.log_file, 'r', encoding='utf-8') as f:
+            with open(self.log_file, "r", encoding="utf-8") as f:
                 for line in f:
                     try:
                         traces.append(json.loads(line.strip()))
@@ -94,71 +97,76 @@ class ObservabilityDashboard:
         except Exception as e:
             print(f"Warning: Could not read log file {self.log_file}: {e}")
             return []
-        
-        return sorted(traces, key=lambda x: x.get('timestamp', x.get('start_time', '')))
-    
+
+        return sorted(traces, key=lambda x: x.get("timestamp", x.get("start_time", "")))
+
     def _build_timeline(self, traces: List[Dict]) -> List[Dict]:
         """Build timeline view of agent interactions"""
         timeline = []
-        
+
         for trace in traces:
-            if trace.get('event_type') == 'message_sent':
-                timeline.append({
-                    'timestamp': trace.get('timestamp'),
-                    'type': 'message',
-                    'sender': trace.get('sender'),
-                    'receiver': trace.get('receiver'),
-                    'content_preview': trace.get('content_preview'),
-                    'message_id': trace.get('message_id')
-                })
-            elif trace.get('event_type') in ['message_received', 'message_processing']:
-                timeline.append({
-                    'timestamp': trace.get('start_time'),
-                    'type': 'processing',
-                    'agent': trace.get('agent_name'),
-                    'duration_ms': trace.get('duration_ms'),
-                    'status': trace.get('status'),
-                    'trace_id': trace.get('trace_id')
-                })
-        
+            if trace.get("event_type") == "message_sent":
+                timeline.append(
+                    {
+                        "timestamp": trace.get("timestamp"),
+                        "type": "message",
+                        "sender": trace.get("sender"),
+                        "receiver": trace.get("receiver"),
+                        "content_preview": trace.get("content_preview"),
+                        "message_id": trace.get("message_id"),
+                    }
+                )
+            elif trace.get("event_type") in ["message_received", "message_processing"]:
+                timeline.append(
+                    {
+                        "timestamp": trace.get("start_time"),
+                        "type": "processing",
+                        "agent": trace.get("agent_name"),
+                        "duration_ms": trace.get("duration_ms"),
+                        "status": trace.get("status"),
+                        "trace_id": trace.get("trace_id"),
+                    }
+                )
+
         return timeline
-    
+
     def _calculate_metrics(self, traces: List[Dict]) -> Dict[str, Any]:
         """Calculate performance metrics"""
-        total_messages = len([t for t in traces if t.get('event_type') == 'message_sent'])
-        total_processing = len([t for t in traces if t.get('duration_ms')])
-        
-        durations = [t.get('duration_ms', 0) for t in traces if t.get('duration_ms')]
+        total_messages = len([t for t in traces if t.get("event_type") == "message_sent"])
+        total_processing = len([t for t in traces if t.get("duration_ms")])
+
+        durations = [t.get("duration_ms", 0) for t in traces if t.get("duration_ms")]
         avg_duration = sum(durations) / len(durations) if durations else 0
-        
-        errors = len([t for t in traces if t.get('status') == 'error'])
-        
+
+        errors = len([t for t in traces if t.get("status") == "error"])
+
         return {
-            'total_messages': total_messages,
-            'total_processing_events': total_processing,
-            'average_duration_ms': round(avg_duration, 2),
-            'error_count': errors,
-            'error_rate': round(errors / max(total_processing, 1) * 100, 2)
+            "total_messages": total_messages,
+            "total_processing_events": total_processing,
+            "average_duration_ms": round(avg_duration, 2),
+            "error_count": errors,
+            "error_rate": round(errors / max(total_processing, 1) * 100, 2),
         }
-    
-    def run(self, host='localhost', port=5000, debug=False):
+
+    def run(self, host="localhost", port=5000, debug=False):
         """Start the dashboard server"""
         if not FLASK_AVAILABLE:
             print("❌ Flask not available. Install with: pip install flask")
             return
-            
+
         if not self.app:
             print("❌ Dashboard not initialized properly")
             return
-            
+
         print(f"🚀 MultiProdigy Observability Dashboard running at http://{host}:{port}")
         try:
             self.app.run(host=host, port=port, debug=debug)
         except Exception as e:
             print(f"❌ Could not start dashboard: {e}")
 
+
 # Simple HTML template for the dashboard
-DASHBOARD_HTML = '''
+DASHBOARD_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
@@ -282,4 +290,4 @@ DASHBOARD_HTML = '''
     </script>
 </body>
 </html>
-'''
+"""

@@ -1,6 +1,7 @@
 from MultiProdigy.agents.agent_base import BaseAgent
 from MultiProdigy.schemas.message import Message
 
+
 class EchoAgent(BaseAgent):
     def on_message(self, message: Message) -> None:
         print(f"[{self.name}] Received: {message.content}")

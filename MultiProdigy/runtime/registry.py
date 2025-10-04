@@ -1,5 +1,6 @@
 # prodigal_agent/runtime/registry.py
 
+
 class AgentRegistry:
     agents = {}
 

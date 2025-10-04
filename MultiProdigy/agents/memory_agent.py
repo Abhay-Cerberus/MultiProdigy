@@ -1,5 +1,6 @@
-from MultiProdigy.schemas.message import Message
 from MultiProdigy.agents.agent_base import BaseAgent
+from MultiProdigy.schemas.message import Message
+
 
 class MemoryAgent(BaseAgent):
     def __init__(self, name: str, runtime):

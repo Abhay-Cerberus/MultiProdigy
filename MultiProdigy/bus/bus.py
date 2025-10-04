@@ -1,8 +1,15 @@
 from collections import deque
+from typing import TYPE_CHECKING
+
 from MultiProdigy.schemas.message import Message
+
+if TYPE_CHECKING:
+    from MultiProdigy.agents.agent_base import BaseAgent
+
 
 class MessageBus:
     """Manages agent registration and in-memory message delivery."""
+
     def __init__(self):
         self.queue = deque()
         self.agents: dict[str, "BaseAgent"] = {}

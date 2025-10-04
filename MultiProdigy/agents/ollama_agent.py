@@ -1,7 +1,9 @@
 import shlex
 import subprocess  # nosec B404 - subprocess is needed for ollama integration
+main
 from MultiProdigy.agents.agent_base import BaseAgent
 from MultiProdigy.schemas.schemas import Message
+
 
 class OllamaAgent(BaseAgent):
     def __init__(self, runtime):
@@ -12,14 +14,8 @@ class OllamaAgent(BaseAgent):
 
         # Sanitize input to prevent command injection
         safe_content = shlex.quote(message.content)
-        command = [
-            "ollama",
-            "run",
-            "tinylama",
-            "--quiet",
-            "--prompt",
-            safe_content
-        ]
+        command = ["ollama", "run", "tinylama", "--quiet", "--prompt", safe_content]
+        main
 
         try:
             # nosec B603 - command is constructed safely with shlex.quote
@@ -28,10 +24,10 @@ class OllamaAgent(BaseAgent):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                encoding='utf-8',
-                errors='replace',
+                encoding="utf-8",
+                errors="replace",
                 timeout=30,  # Add timeout for security
-                check=False  # Don't raise on non-zero exit
+                check=False,  # Don't raise on non-zero exit
             )
             output = result.stdout.strip()
 
@@ -49,4 +45,3 @@ class OllamaAgent(BaseAgent):
             error_msg = f"[OllamaAgent] Exception: {str(e)}"
             print(error_msg)
             return error_msg
-

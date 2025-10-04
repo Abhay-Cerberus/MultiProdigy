@@ -1,2 +1,1 @@
-
-from .schemas import AgentConfig, Message, BusPayload
+from .schemas import AgentConfig, BusPayload, Message
