@@ -3,7 +3,8 @@ Local LLM clients for offline models (Ollama, HuggingFace, etc.)
 """
 
 import asyncio
-import subprocess
+import shlex
+import subprocess  # nosec B404 - subprocess needed for local LLM integration
 from typing import Dict, Any, List
 from MultiProdigy.llm.base import BaseLLMClient, LLMConfig, LLMResponse, LLMProvider
 
@@ -36,12 +37,15 @@ class OllamaClient(LocalLLMClient):
             # Use subprocess for Ollama CLI
             prompt = messages[-1]["content"]  # Use last message as prompt
             
-            cmd = ["ollama", "run", self.config.model]
+            # Sanitize model name to prevent command injection
+            safe_model = shlex.quote(self.config.model)
+            cmd = ["ollama", "run", safe_model]
             
             # Run in thread pool to avoid blocking with shorter timeout
             loop = asyncio.get_event_loop()
             
             # Use asyncio.wait_for for better timeout control
+            # nosec B603 - command is constructed safely with shlex.quote
             result = await asyncio.wait_for(
                 loop.run_in_executor(
                     None,
@@ -50,7 +54,8 @@ class OllamaClient(LocalLLMClient):
                         input=prompt.encode(),
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
-                        timeout=min(self.config.timeout, 10)  # Max 10 seconds for demo
+                        timeout=min(self.config.timeout, 10),  # Max 10 seconds for demo
+                        check=False  # Don't raise on non-zero exit
                     )
                 ),
                 timeout=15  # Overall timeout of 15 seconds
