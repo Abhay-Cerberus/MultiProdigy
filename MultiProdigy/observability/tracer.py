@@ -1,7 +1,7 @@
 import json
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 from pathlib import Path
 
@@ -20,7 +20,7 @@ class AgentTracer:
             "trace_id": trace_id,
             "agent_name": agent_name,
             "event_type": event_type,
-            "start_time": datetime.utcnow().isoformat(),
+            "start_time": datetime.now(timezone.utc).isoformat(),
             "metadata": metadata or {},
             "status": "started"
         }
@@ -36,7 +36,7 @@ class AgentTracer:
             
         trace_data = self.current_traces[trace_id].copy()
         trace_data.update({
-            "end_time": datetime.utcnow().isoformat(),
+            "end_time": datetime.now(timezone.utc).isoformat(),
             "duration_ms": self._calculate_duration(trace_data["start_time"]),
             "status": "error" if error else "completed",
             "result": result,
@@ -50,7 +50,7 @@ class AgentTracer:
         """Log a message passing event"""
         event_data = {
             "event_type": "message_sent",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "sender": sender,
             "receiver": receiver,
             "message_id": message_id or str(uuid.uuid4()),
@@ -73,7 +73,7 @@ class AgentTracer:
         """Calculate duration in milliseconds"""
         try:
             start = datetime.fromisoformat(start_time)
-            end = datetime.utcnow()
+            end = datetime.now(timezone.utc)
             return (end - start).total_seconds() * 1000
         except Exception:
             return 0.0
