@@ -32,11 +32,8 @@ source venv/bin/activate
 
 ### **2. Install Dependencies**
 ```bash
-# Core dependencies
+# Install all dependencies
 pip install -r requirements.txt
-
-# Observability (recommended)
-pip install -r requirements_observability.txt
 ```
 
 ### **3. Verify Installation**
@@ -50,21 +47,12 @@ python demo/run_working_demo.py
 
 ## 📦 Dependencies
 
-### **Core** (`requirements.txt`)
-```txt
-pydantic>=2.0.0          # Schema validation
-aiohttp>=3.8.0           # Async HTTP client
-flask>=2.3.0             # Web framework
-requests>=2.28.0         # HTTP client
-python-dotenv>=1.0.0     # Environment variables
-```
-
-### **Observability** (`requirements_observability.txt`)
-```txt
-flask-cors>=4.0.0        # CORS support
-jinja2>=3.1.0            # Template engine
-werkzeug>=2.3.0          # WSGI utilities
-```
+### **Dependencies** (`requirements.txt`)
+All dependencies are in a single requirements.txt file including:
+- Core framework dependencies (pydantic, aiohttp, flask)
+- LLM integration libraries (transformers, torch)
+- Development and testing tools (pytest, black, mypy)
+- Documentation tools (mkdocs)
 
 ### **Development** (Optional)
 ```bash

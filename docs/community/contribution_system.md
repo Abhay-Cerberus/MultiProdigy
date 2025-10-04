@@ -62,4 +62,4 @@ The system tracks:
 
 ---
 
-For the complete technical documentation, see the original [CONTRIBUTION_SYSTEM.md](../CONTRIBUTION_SYSTEM.md).
+For the complete technical documentation, see [contribution_system_detailed.md](contribution_system_detailed.md).

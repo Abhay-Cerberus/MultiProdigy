@@ -179,7 +179,6 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
-pip install -r requirements_observability.txt
 
 # Install dev tools
 pip install black isort flake8 mypy pytest pre-commit

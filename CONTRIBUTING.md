@@ -40,7 +40,6 @@ Thank you for your interest in contributing to MultiProdigy! We welcome contribu
    
    # Install dependencies
    pip install -r requirements.txt
-   pip install -r requirements_observability.txt
    
    # Install development dependencies
    pip install pytest black isort flake8 mypy pre-commit

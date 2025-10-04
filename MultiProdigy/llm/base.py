@@ -23,8 +23,7 @@ class LLMConfig(BaseModel):
     timeout: int = Field(default=30, gt=0)
     extra_params: Dict[str, Any] = Field(default_factory=dict)
     
-    class Config:
-        use_enum_values = True
+    model_config = {"use_enum_values": True}
 
 class LLMResponse(BaseModel):
     """Standardized LLM response format"""

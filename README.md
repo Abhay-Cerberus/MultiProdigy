@@ -106,13 +106,7 @@ such as learning, reasoning, problem-solving, and language understanding...
 
 ## 🤝 Contributing
 
-We welcome contributions from developers of all skill levels!
-
-- [🤝 **Contributing Guide**](CONTRIBUTING.md) - How to contribute to the project
-- [📜 **Code of Conduct**](CODE_OF_CONDUCT.md) - Community guidelines
-- [🏆 **Contribution System**](docs/CONTRIBUTION_SYSTEM.md) - Automated workflows and recognition
-- [🐛 **Report Issues**](https://github.com/Abhay-Cerberus/MultiProdigy/issues) - Bug reports and feature requests
-- [💬 **Discussions**](https://github.com/Abhay-Cerberus/MultiProdigy/discussions) - Community discussions
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ---
 

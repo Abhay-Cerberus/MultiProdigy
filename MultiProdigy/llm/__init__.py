@@ -23,10 +23,7 @@ from .base import BaseLLMClient, LLMConfig, LLMResponse, LLMProvider
 from .api_client import APILLMClient
 from .local_client import OllamaClient, HuggingFaceClient, MockClient
 
-# Legacy exports for backward compatibility (with deprecation warnings)
-from .clients import OpenAIClient as LegacyOpenAIClient
-from .clients import GeminiClient as LegacyGeminiClient
-from .clients import OllamaClient as LegacyOllamaClient
+# Legacy clients are deprecated - use LLMFactory instead
 
 __all__ = [
     # New unified system (recommended)
@@ -42,10 +39,7 @@ __all__ = [
     "create_llm_client",
     "get_supported_providers",
     
-    # Legacy compatibility (deprecated)
-    "LegacyOpenAIClient",
-    "LegacyGeminiClient", 
-    "LegacyOllamaClient",
+    # Legacy compatibility removed - use LLMFactory instead
 ]
 
 # Version info
