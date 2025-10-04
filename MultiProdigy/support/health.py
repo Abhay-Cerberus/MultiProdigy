@@ -3,5 +3,5 @@ def health_check() -> dict:
         "status": "ok",
         "agents_loaded": True,
         "memory_available": True,
-        "ollama_installed": True  # You can later replace with a real check
+        "ollama_installed": True,  # You can later replace with a real check
     }

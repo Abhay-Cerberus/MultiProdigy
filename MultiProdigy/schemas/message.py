@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 class Message(BaseModel):
     sender: str
     receiver: str
@@ -11,5 +12,5 @@ class Message(BaseModel):
             sender=self.sender,
             receiver=self.receiver,
             content=new_content,
-            metadata=self.metadata.copy()
+            metadata=self.metadata.copy(),
         )

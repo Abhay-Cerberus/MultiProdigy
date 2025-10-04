@@ -1,5 +1,7 @@
 import logging
+
 from MultiProdigy.config import settings
+
 
 def setup_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
@@ -7,7 +9,9 @@ def setup_logger(name: str) -> logging.Logger:
 
     if not logger.handlers:
         console_handler = logging.StreamHandler()
-        formatter = logging.Formatter('[%(levelname)s] %(asctime)s - %(name)s: %(message)s', datefmt='%H:%M:%S')
+        formatter = logging.Formatter(
+            "[%(levelname)s] %(asctime)s - %(name)s: %(message)s", datefmt="%H:%M:%S"
+        )
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
 

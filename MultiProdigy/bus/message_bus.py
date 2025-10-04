@@ -14,7 +14,7 @@ class MessageBus:
             self.agents[receiver].handle_message(message)
         else:
             print(f"[Bus] No agent found with name: {receiver}")
-    
+
     def send(self, message):
         """Alias for publish to maintain compatibility"""
         self.publish(message)
